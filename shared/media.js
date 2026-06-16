@@ -2,8 +2,8 @@
 export const MEDIA = {
   logo: "../../assets/media/verity-logo-full.png",
   hero: {
-    /** Wix CDN — direct download returns 403; embed from original site */
-    video: "https://video.wixstatic.com/video/a98ef9_acd5fba63188431c8546ada325553dd8f000/720p/mp4/file.mp4",
+    /** Local 720p copy of the original Wix hero loop (self-hosted) */
+    video: "../../assets/media/hero/hero-loop.mp4",
     team: "../../assets/media/hero/team-collaboration.jpg",
     diverse: "../../assets/media/hero/diverse-team.jpg",
   },
