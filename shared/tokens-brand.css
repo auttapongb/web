@@ -1,0 +1,45 @@
+:root {
+  /* Burgundy + gold brand (business card) — no purple, no pure black */
+  --vt-burgundy: #8B2332;
+  --vt-burgundy-deep: #6B1A28;
+  --vt-burgundy-dark: #3D1F24;
+  --vt-burgundy-muted: #A63D4D;
+  --vt-gold: #C9A962;
+  --vt-gold-light: #E8C872;
+  --vt-gold-dark: #A8863E;
+  --vt-champagne: #F0E6D3;
+
+  --bg-primary: #2A1518;
+  --bg-secondary: #3D1F24;
+  --bg-elevated: #4A2830;
+  --bg-light: #F0EEEA;
+  --bg-light-alt: #E8E5DF;
+
+  --text-primary: #F5F3EF;
+  --text-secondary: #D4CFC8;
+  --text-muted: #A89F96;
+  --text-on-light: #3A3632;
+  --text-on-light-muted: #6B6560;
+
+  --border: rgba(201, 169, 98, 0.22);
+  --border-light: rgba(139, 35, 50, 0.15);
+  --glass-fill: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(232, 200, 114, 0.18);
+
+  --gradient-hero: linear-gradient(145deg, #3D1F24 0%, #2A1518 45%, #4A2830 100%);
+  --gradient-gold: linear-gradient(135deg, var(--vt-gold-light), var(--vt-gold));
+  --gradient-burgundy: linear-gradient(135deg, var(--vt-burgundy), var(--vt-burgundy-deep));
+
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Space Grotesk", var(--font-sans);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 200ms;
+  --duration-normal: 400ms;
+  --duration-slow: 800ms;
+
+  --nav-height: 76px;
+  --max-width: 1200px;
+  --radius: 12px;
+  --radius-lg: 20px;
+}

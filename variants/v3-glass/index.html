@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>V3 Glass Horizon | Verity Tech</title>
+  <meta name="description" content="Verity Tech — IT Consultant, Digital Signage, Smart Office, Software Development">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/tokens.css">
+  <link rel="stylesheet" href="../../shared/base.css">
+  <link rel="stylesheet" href="../../shared/nav.css">
+  <style>
+    .hero {
+      min-height: 100vh; display: flex; align-items: center; position: relative; overflow: hidden;
+      background: var(--bg-primary);
+    }
+    .mesh-bg {
+      position: absolute; inset: -50%;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(17,109,255,0.35) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(90,72,245,0.3) 0%, transparent 50%),
+        radial-gradient(ellipse at 60% 80%, rgba(75,145,109,0.25) 0%, transparent 50%);
+      animation: meshMove 20s ease-in-out infinite alternate;
+    }
+    @keyframes meshMove {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(-5%, 5%) rotate(3deg); }
+    }
+    @media (prefers-reduced-motion: reduce) { .mesh-bg { animation: none; } }
+    .glass-orb {
+      position: absolute; width: 400px; height: 400px; border-radius: 50%;
+      background: rgba(56,153,236,0.08); backdrop-filter: blur(40px);
+      border: 1px solid rgba(255,255,255,0.08);
+      top: 10%; right: 5%;
+      animation: float 8s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-24px); }
+    }
+    .hero-glass {
+      position: relative; z-index: 1;
+      padding: calc(var(--nav-height) + 2rem) 0 4rem;
+      max-width: 680px;
+    }
+    .glass-panel {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .hero-glass h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 3.25rem);
+      font-weight: 700; line-height: 1.1; margin-bottom: 1rem;
+    }
+    .hero-glass p { color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.7; }
+    .hero-glass .highlight { color: var(--vt-blue-glow); font-weight: 600; }
+    .variant-bar {
+      position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%);
+      background: rgba(17,24,39,0.9); border: 1px solid var(--border); border-radius: 999px;
+      padding: 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); z-index: 100;
+    }
+    .variant-bar a { color: var(--vt-blue-light); margin-left: 0.5rem; }
+    .card { backdrop-filter: blur(12px); }
+  </style>
+</head>
+<body>
+  <a href="#main-sections" class="skip-link">Skip to main content</a>
+  <section class="hero" id="hero">
+    <div class="mesh-bg"></div>
+    <div class="glass-orb"></div>
+    <div class="container hero-glass">
+      <div class="glass-panel reveal">
+        <p class="section-label">V3 — Glass Horizon</p>
+        <h1>Pushing Past <span class="highlight">Limits</span></h1>
+        <p>Verity Tech Co. Ltd. was founded on the belief that businesses can push past their limits with innovative technology solutions.</p>
+        <p><span class="highlight">Swiftlet</span> enables your innovation dreams into reality!</p>
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.5rem">
+          <a href="#software" class="btn btn-primary">Software Solutions</a>
+          <a href="#hardware" class="btn btn-ghost">Hardware Products</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  <main id="main-sections"></main>
+  <div id="toast" class="toast">Message sent! We'll be in touch.</div>
+  <div class="variant-bar">Sample 3/5 <a href="../../">← All variants</a></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

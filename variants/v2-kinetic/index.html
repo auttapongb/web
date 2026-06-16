@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>V2 Kinetic Scroll | Verity Tech</title>
+  <meta name="description" content="Verity Tech — IT Consultant, Digital Signage, Smart Office, Software Development">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/tokens.css">
+  <link rel="stylesheet" href="../../shared/base.css">
+  <link rel="stylesheet" href="../../shared/nav.css">
+  <style>
+    .hero {
+      min-height: 100vh; display: flex; align-items: center;
+      background: linear-gradient(180deg, var(--bg-primary) 0%, #0f172a 50%, rgba(17,109,255,0.08) 100%);
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ""; position: absolute; inset: 0;
+      background: repeating-linear-gradient(90deg, transparent, transparent 80px, rgba(56,153,236,0.03) 80px, rgba(56,153,236,0.03) 81px);
+    }
+    .hero-content { position: relative; padding: calc(var(--nav-height) + 2rem) 0 4rem; }
+    .hero-line {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 700; line-height: 0.95;
+      overflow: hidden;
+    }
+    .hero-line span { display: block; }
+    .hero-line .accent { color: var(--vt-blue-glow); }
+    .hero-sub { font-size: 1.25rem; color: var(--text-secondary); max-width: 520px; margin: 1.5rem 0 2rem; }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .kinetic-bar {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, var(--vt-blue), var(--vt-purple), var(--vt-green));
+      transform-origin: left;
+    }
+    .variant-bar {
+      position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%);
+      background: rgba(17,24,39,0.9); border: 1px solid var(--border); border-radius: 999px;
+      padding: 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); z-index: 100;
+    }
+    .variant-bar a { color: var(--vt-blue-light); margin-left: 0.5rem; }
+  </style>
+</head>
+<body>
+  <a href="#main-sections" class="skip-link">Skip to main content</a>
+  <section class="hero" id="hero">
+    <div class="container hero-content">
+      <p class="section-label hero-line"><span>V2 — Kinetic Scroll</span></p>
+      <h1 class="hero-line"><span>One-Stop</span><span class="accent">Digital</span><span>Solutions</span></h1>
+      <p class="hero-sub">Hardware and Software Development Services. At Verity Tech, we're your one-stop shop for all your digital needs.</p>
+      <div class="hero-actions">
+        <a href="#hardware" class="btn btn-primary">Hardware Products</a>
+        <a href="#contact" class="btn btn-ghost">Contact Us</a>
+      </div>
+    </div>
+    <div class="kinetic-bar"></div>
+  </section>
+  <main id="main-sections"></main>
+  <div id="toast" class="toast">Message sent! We'll be in touch.</div>
+  <div class="variant-bar">Sample 2/5 <a href="../../">← All variants</a></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

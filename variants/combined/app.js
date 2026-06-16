@@ -1,0 +1,849 @@
+import { VERITY_CONTENT as C } from "../../shared/content.js";
+import { MEDIA as M } from "../../shared/media.js";
+import { loadThree, loadOrbitControls, BRAND_3D, PARTICLE_PALETTE } from "../../shared/three-core.js";
+import { icon } from "../../shared/icons.js";
+import { animate, stagger } from "https://cdn.jsdelivr.net/npm/animejs/+esm";
+
+const SERVICE_ICONS = { chart: "chart", code: "code", home: "home", display: "display" };
+const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let heroScroll = 0;
+
+function mediaPath(key) {
+  const parts = key.split(".");
+  let obj = M;
+  for (const p of parts) obj = obj?.[p];
+  return typeof obj === "string" ? obj : "";
+}
+
+/** Pause rAF loops when hero leaves viewport (ui-skills: fixing-motion-performance) */
+function observeHeroVisibility(onVisible) {
+  const hero = document.getElementById("hero");
+  if (!hero) return () => true;
+  let visible = true;
+  const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; onVisible?.(visible); }, { threshold: 0.05 });
+  io.observe(hero);
+  return () => visible;
+}
+
+/* ── Nav ── */
+function renderNav() {
+  const nav = document.createElement("nav");
+  nav.className = "site-nav";
+  nav.innerHTML = `
+    <div class="nav-inner container">
+      <a href="../../" class="nav-logo">
+        <img src="${M.logo}" alt="Verity Tech home" width="120" height="40" class="nav-logo-full">
+        <span class="logo-text"><span>VERITY</span> TECH</span>
+      </a>
+      <button class="nav-toggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="nav-menu">
+        <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+      </button>
+      <ul class="nav-menu" id="nav-menu">
+        ${C.nav.map((item, i) => item.children ? `
+          <li class="nav-item has-dropdown">
+            <button class="nav-link dropdown-toggle" aria-expanded="false" aria-controls="nav-dropdown-${i}">${item.label}</button>
+            <ul class="dropdown" id="nav-dropdown-${i}">${item.children.map(c => `<li><a href="${c.href}">${c.label}</a></li>`).join("")}</ul>
+          </li>` : `
+          <li class="nav-item"><a href="${item.href}" class="nav-link">${item.label}</a></li>`
+        ).join("")}
+        <li class="nav-item nav-cta"><a href="#contact" class="btn btn-primary btn-sm">Contact Sales</a></li>
+      </ul>
+    </div>`;
+  return nav;
+}
+
+function renderFooter() {
+  const f = document.createElement("footer");
+  f.className = "site-footer";
+  f.innerHTML = `
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <img src="${M.logo}" alt="Verity Tech logo" width="120" height="40">
+        <div>
+          <strong>${C.company.name}</strong>
+          <p>${C.company.role}</p>
+          <p class="footer-tagline">${C.company.taglineBrand}</p>
+        </div>
+      </div>
+      <div class="footer-links">
+        <a href="${C.company.facebook}" target="_blank" rel="noopener">Facebook</a>
+        <a href="#hardware">Hardware</a>
+        <a href="#software">Software</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <p class="footer-copy">${C.footer.copyright}</p>
+    </div>`;
+  return f;
+}
+
+function initNav() {
+  const toggle = document.querySelector(".nav-toggle");
+  const menu = document.querySelector(".nav-menu");
+  const closeMenu = () => {
+    toggle?.setAttribute("aria-expanded", "false");
+    toggle?.setAttribute("aria-label", "Open navigation menu");
+    menu?.classList.remove("open");
+    document.querySelectorAll(".has-dropdown.open").forEach(el => el.classList.remove("open"));
+    document.querySelectorAll(".dropdown-toggle").forEach(b => b.setAttribute("aria-expanded", "false"));
+  };
+  toggle?.addEventListener("click", () => {
+    const open = toggle.getAttribute("aria-expanded") === "true";
+    toggle.setAttribute("aria-expanded", String(!open));
+    toggle.setAttribute("aria-label", open ? "Open navigation menu" : "Close navigation menu");
+    menu?.classList.toggle("open", !open);
+  });
+  document.querySelectorAll(".dropdown-toggle").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const open = btn.getAttribute("aria-expanded") === "true";
+      btn.setAttribute("aria-expanded", String(!open));
+      btn.parentElement?.classList.toggle("open", !open);
+    });
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeMenu();
+  });
+  window.addEventListener("scroll", () => {
+    document.querySelector(".site-nav")?.classList.toggle("scrolled", window.scrollY > 40);
+  }, { passive: true });
+
+  // Lenis-aware anchor scrolling (native jumps bypass Lenis + skip reveals)
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener("click", e => {
+      const id = link.getAttribute("href");
+      if (!id || id === "#") return;
+      const target = document.querySelector(id);
+      if (!target) return;
+      e.preventDefault();
+      closeMenu();
+      if (lenisInstance) lenisInstance.scrollTo(target, { offset: -72 });
+      else target.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+    });
+  });
+}
+
+/* ── Content render ── */
+function resolveMedia(key) {
+  if (!key) return "";
+  if (key.startsWith("../../") || key.startsWith("http")) return key;
+  return mediaPath(key);
+}
+
+function renderContent() {
+  const gw = C.gateway;
+
+  document.getElementById("trust-bar").innerHTML = gw.trust.map(t => `
+    <div class="trust-badge">
+      <span class="trust-value">${t.value}</span>
+      <span class="trust-label">${t.label}</span>
+    </div>`).join("");
+
+  document.getElementById("path-title").textContent = gw.pathTitle;
+  document.getElementById("path-sub").textContent = gw.pathSubtitle;
+  document.getElementById("path-grid").innerHTML = gw.roles.map(r => `
+    <a href="${r.href}" class="path-card" role="listitem" data-path="${r.id}">
+      <span class="path-icon">${icon(SERVICE_ICONS[r.icon] || "chart")}</span>
+      <h3>${r.label}</h3>
+      <p>${r.summary}</p>
+      <span class="path-arrow" aria-hidden="true">→</span>
+    </a>`).join("");
+
+  document.getElementById("industries-title").textContent = gw.industriesTitle;
+  document.getElementById("industries-sub").textContent = gw.industriesSubtitle;
+  document.getElementById("industry-tabs").innerHTML = gw.industries.map((ind, i) => `
+    <button type="button" class="tab-btn ${i === 0 ? "active" : ""}" role="tab"
+      id="tab-${ind.id}" aria-selected="${i === 0}" aria-controls="panel-${ind.id}"
+      data-industry="${ind.id}">${ind.label}</button>`).join("");
+
+  renderIndustryPanel(gw.industries[0]);
+
+  const logos = [...C.about.partners.carousel, ...C.about.partners.carousel];
+  document.getElementById("logo-carousel").innerHTML = logos.map(name => `
+    <span class="logo-chip">${name}</span>`).join("");
+
+  document.getElementById("service-grid").innerHTML = C.services.map(s => `
+    <a href="${s.href}" class="service-card reveal">
+      <div class="service-num">${s.num}</div>
+      <div class="service-icon">${icon(SERVICE_ICONS[s.icon])}</div>
+      <h3>${s.name}</h3>
+      <p>${s.summary}</p>
+    </a>`).join("");
+
+  document.getElementById("hw-title").textContent = C.hardware.title;
+  document.getElementById("hw-sub").textContent = C.hardware.subtitle;
+  document.getElementById("hw-grid").innerHTML = C.hardware.categories.map(cat => `
+    <article class="card card--media reveal">
+      ${cat.image ? `<img class="card-img" src="${mediaPath(`hardware.${cat.image}`)}" alt="${cat.name}" loading="lazy">` : ""}
+      <div class="card-body">
+        <h3>${cat.name}</h3>
+        <p>${cat.description}</p>
+        ${cat.subcategories ? `<div class="subcat-row">${cat.subcategories.map(sc => `
+          <figure class="subcat">
+            <img src="${mediaPath(`hardware.${sc.image}`)}" alt="${sc.name}" loading="lazy">
+            <figcaption>${sc.name}</figcaption>
+          </figure>`).join("")}</div>` : ""}
+        <ul>${cat.items.map(i => `<li>${i}</li>`).join("")}</ul>
+      </div>
+    </article>`).join("");
+
+  const hwProducts = C.hardware.categories.flatMap(c => c.products || []);
+  document.getElementById("hw-products").innerHTML = hwProducts.length ? `
+    <h3 class="product-strip-title">Featured Products</h3>
+    <div class="product-strip-grid">${hwProducts.map(p => `
+      <article class="product-card">
+        <img src="${mediaPath(`hardware.${p.image}`)}" alt="${p.name}" loading="lazy">
+        <div class="product-card-body">
+          <h4>${p.name}</h4>
+          <p>${p.description}</p>
+        </div>
+      </article>`).join("")}</div>` : "";
+
+  const tc = C.hardware.takeCare;
+  document.getElementById("take-care").innerHTML = `
+    <div class="take-care-inner">
+      <img src="${mediaPath(`hardware.${tc.image}`)}" alt="${tc.title}" loading="lazy">
+      <div>
+        <h3>${tc.title}</h3>
+        <p>${tc.description}</p>
+      </div>
+    </div>`;
+
+  const vx = C.hardware.visix;
+  document.getElementById("visix-title").textContent = vx.title;
+  document.getElementById("visix-intro").textContent = vx.intro;
+  document.getElementById("visix-gallery").innerHTML = M.hardware.visix.map((src, i) => `
+    <button type="button" class="visix-thumb ${i === 0 ? "active" : ""}" data-index="${i}" aria-label="Visix screenshot ${i + 1}">
+      <img src="${src}" alt="Visix product screenshot ${i + 1}" loading="lazy">
+    </button>`).join("") + `
+    <figure class="visix-main">
+      <img id="visix-main-img" src="${M.hardware.visix[0]}" alt="Visix product showcase" loading="lazy">
+    </figure>`;
+  document.getElementById("visix-products").innerHTML = vx.products.map(p => `
+    <article class="visix-product-card">
+      <h4>${p.name}</h4>
+      <p>${p.description}</p>
+    </article>`).join("");
+
+  document.getElementById("sw-title").textContent = C.software.title;
+  document.getElementById("sw-sub").textContent = C.software.subtitle;
+  document.getElementById("sw-visual").innerHTML = `
+    <img src="${M.software.phone1}" alt="Verity Tech mobile app mockup" loading="lazy" class="sw-mockup sw-mockup--1">
+    <img src="${M.software.phone2}" alt="Verity Tech software interface mockup" loading="lazy" class="sw-mockup sw-mockup--2">`;
+  document.getElementById("sw-grid").innerHTML = C.software.categories.map(cat => `
+    <article class="card card--media reveal">
+      ${cat.image ? `<img class="card-img" src="${mediaPath(`software.${cat.image}`)}" alt="${cat.name}" loading="lazy">` : ""}
+      <div class="card-body">
+        <h3>${cat.name}</h3>
+        <p>${cat.description}</p>
+        ${cat.stacks ? `<p class="stack-tag">Tech: ${cat.stacks}</p>` : ""}
+        <ul>${cat.items.slice(0, 9).map(i => `<li>${i}</li>`).join("")}</ul>
+      </div>
+    </article>`).join("");
+
+  const dev = C.software.development;
+  document.getElementById("dev-title").textContent = dev.title;
+  document.getElementById("dev-intro").textContent = dev.intro;
+  document.getElementById("dev-grid").innerHTML = dev.features.map(f => `
+    <article class="feature-card">
+      <span class="feature-icon">${icon(SERVICE_ICONS[f.icon] || "code")}</span>
+      <h4>${f.name}</h4>
+      <p>${f.description}</p>
+    </article>`).join("");
+
+  const data = C.software.data;
+  document.getElementById("data-title").textContent = data.title;
+  document.getElementById("data-intro").textContent = data.intro;
+  document.getElementById("data-grid").innerHTML = data.features.map(f => `
+    <article class="feature-card">
+      <span class="feature-icon">${icon(SERVICE_ICONS[f.icon] || "chart")}</span>
+      <h4>${f.name}</h4>
+      <p>${f.description}</p>
+    </article>`).join("");
+
+  const ts = C.software.techStacks;
+  document.getElementById("tech-stacks").innerHTML = `
+    <h3 class="feature-block-title">${ts.title}</h3>
+    <div class="tech-stack-grid">
+      ${[["Frontend", ts.frontend], ["Backend", ts.backend], ["Mobile", ts.mobile], ["Data", ts.data]].map(([label, list]) => `
+        <div class="tech-stack-col">
+          <h4>${label}</h4>
+          <ul>${list.map(t => `<li>${t}</li>`).join("")}</ul>
+        </div>`).join("")}
+    </div>`;
+
+  document.getElementById("about-title").textContent = C.about.title;
+  document.getElementById("about-body").textContent = C.about.body;
+  document.getElementById("about-exp").textContent = C.about.experience;
+  document.getElementById("about-photo").src = M.hero.team;
+
+  document.getElementById("partners-title").textContent = C.about.partners.title;
+  document.getElementById("partners-note").textContent = C.about.partners.note;
+
+  document.getElementById("blog-title").textContent = C.blog.title;
+  document.getElementById("blog-list").innerHTML = C.blog.posts.map(p => `
+    <article class="blog-card reveal">
+      ${p.image ? `<img class="blog-img" src="${mediaPath(`about.${p.image}`)}" alt="" loading="lazy">` : ""}
+      <time datetime="2023-11-27">${p.date}</time>
+      <h3>${p.title}</h3>
+      <p>${p.body || p.excerpt}</p>
+      <span class="blog-meta">By ${p.author}</span>
+    </article>`).join("");
+
+  const cp = C.contact.person;
+  document.getElementById("contact-label").textContent = C.contact.title;
+  document.getElementById("contact-cta").textContent = C.contact.cta;
+  document.getElementById("contact-desc").textContent = C.contact.description;
+  document.getElementById("contact-person").innerHTML = `
+    <h4>${cp.name}</h4>
+    <p class="title">${cp.title}</p>
+    <p class="contact-detail"><span class="icon" aria-hidden="true">${icon("phone")}</span><a href="tel:${cp.phone.replace(/\s/g,"")}">${cp.phone}</a></p>
+    <p class="contact-detail"><span class="icon" aria-hidden="true">${icon("mail")}</span><a href="mailto:${cp.email}">${cp.email}</a></p>
+    <p class="contact-detail"><span class="icon" aria-hidden="true">${icon("globe")}</span><a href="https://${C.company.domain}">${C.company.domain}</a></p>
+    <p class="contact-detail"><span class="icon" aria-hidden="true">${icon("message")}</span><span>Line: ${cp.line}</span></p>`;
+}
+
+function renderIndustryPanel(ind) {
+  const panel = document.getElementById("industry-panel");
+  if (!panel || !ind) return;
+  panel.id = `panel-${ind.id}`;
+  panel.setAttribute("aria-labelledby", `tab-${ind.id}`);
+  panel.innerHTML = `
+    <div class="industry-panel-inner">
+      <div class="industry-copy">
+        <h3>${ind.title}</h3>
+        <p>${ind.description}</p>
+        <ul>${ind.bullets.map(b => `<li>${b}</li>`).join("")}</ul>
+        <a href="${ind.href}" class="btn btn-primary btn-sm">Learn more</a>
+      </div>
+      <figure class="industry-visual">
+        <img src="${resolveMedia(ind.image)}" alt="${ind.title}" loading="lazy">
+      </figure>
+    </div>`;
+}
+
+function initIndustryTabs() {
+  const tabs = document.getElementById("industry-tabs");
+  if (!tabs) return;
+  tabs.addEventListener("click", e => {
+    const btn = e.target.closest(".tab-btn");
+    if (!btn) return;
+    const id = btn.dataset.industry;
+    const ind = C.gateway.industries.find(i => i.id === id);
+    if (!ind) return;
+    tabs.querySelectorAll(".tab-btn").forEach(t => {
+      const on = t === btn;
+      t.classList.toggle("active", on);
+      t.setAttribute("aria-selected", String(on));
+    });
+    renderIndustryPanel(ind);
+  });
+}
+
+function initPathCards() {
+  document.querySelectorAll(".path-card").forEach(card => {
+    card.addEventListener("click", () => {
+      document.querySelectorAll(".path-card").forEach(c => c.classList.remove("selected"));
+      card.classList.add("selected");
+    });
+  });
+}
+
+function initLogoCarousel() {
+  if (reduced) return;
+  const track = document.getElementById("logo-carousel");
+  if (!track) return;
+  track.style.setProperty("--carousel-duration", `${C.about.partners.carousel.length * 4}s`);
+}
+
+function initVisixGallery() {
+  const gallery = document.getElementById("visix-gallery");
+  const main = document.getElementById("visix-main-img");
+  if (!gallery || !main) return;
+  gallery.addEventListener("click", e => {
+    const btn = e.target.closest(".visix-thumb");
+    if (!btn) return;
+    gallery.querySelectorAll(".visix-thumb").forEach(t => t.classList.remove("active"));
+    btn.classList.add("active");
+    main.src = M.hardware.visix[Number(btn.dataset.index)];
+  });
+}
+
+function initHeroVideo() {
+  const video = document.querySelector(".hero-video");
+  if (!video || reduced) return;
+  video.play().catch(() => { video.style.display = "none"; });
+}
+
+function initContactForm() {
+  const form = document.getElementById("contact-form");
+  const toast = document.getElementById("toast");
+  const endpoint = (C.contact.endpoint || "").trim();
+  form?.addEventListener("submit", async e => {
+    e.preventDefault();
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+
+    const showToast = () => {
+      toast?.classList.add("show");
+      setTimeout(() => toast?.classList.remove("show"), 4000);
+      form.reset();
+    };
+
+    const data = Object.fromEntries(new FormData(form).entries());
+
+    if (endpoint) {
+      const btn = form.querySelector("button[type='submit']");
+      const label = btn?.textContent;
+      if (btn) { btn.disabled = true; btn.textContent = "Sending…"; }
+      try {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { Accept: "application/json", "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        showToast();
+      } catch {
+        // Fallback to mailto if the endpoint is unreachable
+        openMailto(data);
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = label; }
+      }
+    } else {
+      openMailto(data);
+      showToast();
+    }
+  });
+}
+
+function openMailto({ name = "", email = "", message = "" }) {
+  const subject = encodeURIComponent(`Website enquiry from ${name || "a visitor"}`);
+  const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`);
+  window.location.href = `mailto:${C.contact.person.email}?subject=${subject}&body=${body}`;
+}
+
+/* ── anime.js hero (MotionSites-style stagger) ── */
+function initHeroAnime() {
+  if (reduced) return;
+
+  try {
+  animate(".hero-brand-tag", {
+    opacity: [0, 1], translateY: [16, 0], duration: 700, ease: "outExpo", delay: 200,
+  });
+
+  animate("[data-animate='line']", {
+    opacity: [0, 1], translateY: [48, 0], duration: 900, ease: "outExpo",
+    delay: stagger(120, { start: 400 }),
+  });
+
+  animate("[data-animate='fade']", {
+    opacity: [0, 1], translateY: [24, 0], duration: 700, ease: "outExpo",
+    delay: stagger(100, { start: 900 }),
+  });
+
+  animate(".kinetic-bar", {
+    scaleX: [0, 1], duration: 1200, ease: "outExpo", delay: 1100,
+  });
+  } catch (err) {
+    console.warn("Hero animation fallback:", err);
+  }
+}
+
+/* ── Three.js hero (threejs.org patterns: grid + particles + wireframes) ── */
+async function initHeroThree() {
+  const canvas = document.getElementById("hero-canvas");
+  if (!canvas || reduced) { if (canvas) canvas.style.display = "none"; return; }
+
+  try {
+    const THREE = await loadThree();
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(BRAND_3D.bg, 0.022);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
+    camera.position.set(0, 8, 24);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const grid = new THREE.GridHelper(70, 35, BRAND_3D.gold, BRAND_3D.burgundy);
+    grid.material.opacity = 0.28;
+    grid.material.transparent = true;
+    scene.add(grid);
+
+    const count = 1800;
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 90;
+      positions[i * 3 + 1] = Math.random() * 35 + 2;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 70;
+      const c = PARTICLE_PALETTE[Math.floor(Math.random() * PARTICLE_PALETTE.length)];
+      colors[i * 3] = c[0];
+      colors[i * 3 + 1] = c[1];
+      colors[i * 3 + 2] = c[2];
+    }
+    const pGeo = new THREE.BufferGeometry();
+    pGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    pGeo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    const points = new THREE.Points(pGeo, new THREE.PointsMaterial({
+      size: 0.22, vertexColors: true, transparent: true, opacity: 0.75,
+    }));
+    scene.add(points);
+
+    const wireGroup = new THREE.Group();
+    [[4, 0, -6], [-5, 3, 4], [3, 6, 8]].forEach(([x, y, z], i) => {
+      const size = 1.8 + i * 0.6;
+      const geo = new THREE.IcosahedronGeometry(size, i === 0 ? 1 : 0);
+      const mat = new THREE.MeshBasicMaterial({
+        color: i === 1 ? BRAND_3D.gold : BRAND_3D.burgundy,
+        wireframe: true, transparent: true, opacity: 0.55 + i * 0.1,
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(x, y, z);
+      wireGroup.add(mesh);
+    });
+    scene.add(wireGroup);
+
+    const isHeroVisible = observeHeroVisibility();
+    let mx = 0, my = 0;
+    window.addEventListener("mousemove", e => {
+      mx = (e.clientX / window.innerWidth - 0.5) * 4;
+      my = (e.clientY / window.innerHeight - 0.5) * 2.5;
+    }, { passive: true });
+
+    const start = performance.now();
+    renderer.setAnimationLoop(now => {
+      if (!isHeroVisible()) return;
+      const t = (now - start) * 0.001;
+      grid.rotation.y = t * 0.12;
+      points.rotation.y = t * 0.04;
+      wireGroup.rotation.y = t * 0.18;
+      wireGroup.children.forEach((m, i) => {
+        m.rotation.x = t * (0.3 + i * 0.1);
+        m.rotation.z = t * (0.2 + i * 0.05);
+      });
+      const targetZ = 24 + heroScroll * 26;
+      const targetY = 8 + heroScroll * 12;
+      camera.position.x += (mx - camera.position.x) * 0.03;
+      camera.position.y += (targetY - my - camera.position.y) * 0.03;
+      camera.position.z += (targetZ - camera.position.z) * 0.05;
+      camera.lookAt(0, 4, 0);
+      renderer.render(scene, camera);
+    });
+
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  } catch {
+    canvas.style.display = "none";
+  }
+}
+
+/* ── Classic threejs.org icosahedron (Creating a Scene) ── */
+async function initHeroGeo() {
+  const canvas = document.getElementById("hero-geo-canvas");
+  if (!canvas || reduced) { if (canvas) canvas.style.display = "none"; return; }
+
+  try {
+    const THREE = await loadThree();
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+    camera.position.z = 4;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const geometry = new THREE.IcosahedronGeometry(1.2, 1);
+    const wire = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+      color: BRAND_3D.gold, wireframe: true, transparent: true, opacity: 0.9,
+    }));
+    const solid = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({
+      color: BRAND_3D.burgundy, metalness: 0.35, roughness: 0.45,
+      transparent: true, opacity: 0.35,
+    }));
+    scene.add(solid);
+    scene.add(wire);
+
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(1.85, 0.015, 8, 64),
+      new THREE.MeshBasicMaterial({ color: BRAND_3D.goldLight, transparent: true, opacity: 0.5 }),
+    );
+    ring.rotation.x = Math.PI / 2.5;
+    scene.add(ring);
+
+    scene.add(new THREE.AmbientLight(BRAND_3D.gold, 0.4));
+    const dir = new THREE.DirectionalLight(BRAND_3D.goldLight, 1.1);
+    dir.position.set(3, 4, 5);
+    scene.add(dir);
+
+    const isHeroVisible = observeHeroVisibility();
+    const resize = () => {
+      const w = canvas.clientWidth || 380;
+      const h = canvas.clientHeight || 380;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    renderer.setAnimationLoop(time => {
+      if (!isHeroVisible()) return;
+      wire.rotation.x = time * 0.0004;
+      wire.rotation.y = time * 0.0007;
+      solid.rotation.copy(wire.rotation);
+      ring.rotation.z = time * 0.0003;
+      renderer.render(scene, camera);
+    });
+  } catch {
+    canvas.style.display = "none";
+  }
+}
+
+/* ── Three.js product showcase + OrbitControls (threejs.org examples) ── */
+async function initShowcase3D() {
+  const canvas = document.getElementById("showcase-canvas");
+  const section = document.getElementById("showcase-3d");
+  if (!canvas || !section || reduced) { if (canvas) canvas.style.display = "none"; return; }
+
+  const textures = [
+    M.hardware.signageMockup,
+    M.hardware.videowall,
+    M.hardware.lcd,
+    M.software.phone1,
+    M.software.phone2,
+    M.hardware.smartOffice,
+  ];
+
+  try {
+    const THREE = await loadThree();
+    const { OrbitControls } = await loadOrbitControls();
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(BRAND_3D.bg, 0.04);
+    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+    camera.position.set(0, 1, 9);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    const loader = new THREE.TextureLoader();
+    const group = new THREE.Group();
+    scene.add(group);
+
+    textures.forEach((url, i) => {
+      const tex = loader.load(url);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      const frame = new THREE.Mesh(
+        new THREE.BoxGeometry(2.6, 1.85, 0.06),
+        new THREE.MeshStandardMaterial({ color: BRAND_3D.burgundyDeep, metalness: 0.4, roughness: 0.5 }),
+      );
+      const screen = new THREE.Mesh(
+        new THREE.PlaneGeometry(2.4, 1.65),
+        new THREE.MeshStandardMaterial({ map: tex, metalness: 0.1, roughness: 0.7 }),
+      );
+      screen.position.z = 0.04;
+      const panel = new THREE.Group();
+      panel.add(frame);
+      panel.add(screen);
+      const angle = (i / textures.length) * Math.PI * 2;
+      panel.position.set(Math.cos(angle) * 3.5, Math.sin(i * 0.6) * 0.3, Math.sin(angle) * 3.5);
+      panel.rotation.y = -angle + Math.PI / 2;
+      group.add(panel);
+    });
+
+    const knot = new THREE.Mesh(
+      new THREE.TorusKnotGeometry(0.45, 0.12, 100, 16),
+      new THREE.MeshStandardMaterial({ color: BRAND_3D.gold, metalness: 0.6, roughness: 0.3 }),
+    );
+    knot.position.y = -0.5;
+    group.add(knot);
+
+    scene.add(new THREE.AmbientLight(BRAND_3D.gold, 0.35));
+    const key = new THREE.DirectionalLight(BRAND_3D.goldLight, 1.2);
+    key.position.set(5, 8, 6);
+    scene.add(key);
+
+    const controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.enablePan = false;
+    controls.minDistance = 5;
+    controls.maxDistance = 14;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.6;
+
+    let visible = false;
+    const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { threshold: 0.1 });
+    io.observe(section);
+
+    const resize = () => {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight || 420;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    renderer.setAnimationLoop(() => {
+      if (!visible) return;
+      controls.update();
+      knot.rotation.x += 0.008;
+      knot.rotation.y += 0.012;
+      renderer.render(scene, camera);
+    });
+  } catch {
+    canvas.style.display = "none";
+  }
+}
+
+/* ── Reveal on scroll (IntersectionObserver — robust with Lenis) ── */
+function initReveals() {
+  const reveals = document.querySelectorAll(".reveal");
+  if (reduced) {
+    reveals.forEach(el => el.classList.add("visible"));
+    return;
+  }
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("visible"); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+  reveals.forEach(el => io.observe(el));
+}
+
+/* ── GSAP cinematic hero scrub + scroll-driven 3D (2026 trend) ── */
+async function initScroll() {
+  initReveals();
+  if (reduced) return;
+
+  try {
+    const [gsapMod, stMod] = await Promise.all([
+      import("https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js"),
+      import("https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js"),
+    ]);
+    const gsap = gsapMod.default || gsapMod.gsap;
+    const ScrollTrigger = stMod.ScrollTrigger || stMod.default;
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Sync Lenis smooth scroll with ScrollTrigger (gsap.ticker fix)
+    if (lenisInstance) {
+      lenisInstance.on("scroll", ScrollTrigger.update);
+      gsap.ticker.add(t => lenisInstance.raf(t * 1000));
+      gsap.ticker.lagSmoothing(0);
+    }
+
+    // Cinematic hero parallax: drift hero content + visual as you scroll past
+    gsap.to(".hero-glass", {
+      scrollTrigger: { trigger: "#hero", start: "top top", end: "bottom top", scrub: 1 },
+      y: 120, opacity: 0.15, ease: "none",
+    });
+    gsap.to(".hero-visual", {
+      scrollTrigger: { trigger: "#hero", start: "top top", end: "bottom top", scrub: 1.4 },
+      y: -80, ease: "none",
+    });
+
+    // Scroll-driven 3D: feed hero scroll progress into the render loop
+    ScrollTrigger.create({
+      trigger: "#hero", start: "top top", end: "bottom top", scrub: true,
+      onUpdate: self => { heroScroll = self.progress; },
+    });
+
+    ScrollTrigger.refresh();
+  } catch {
+    /* reveals already handled by IntersectionObserver */
+  }
+}
+
+/* ── Lenis smooth scroll (2026 immersive stack) ── */
+let lenisInstance = null;
+async function initSmoothScroll() {
+  if (reduced) return null;
+  try {
+    const { default: Lenis } = await import("https://cdn.jsdelivr.net/npm/lenis@1.1.18/+esm");
+    const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
+    lenisInstance = lenis;
+    function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+    return lenis;
+  } catch {
+    return null;
+  }
+}
+
+/* ── Scroll progress bar ── */
+function initScrollProgress() {
+  const bar = document.getElementById("scroll-progress");
+  if (!bar) return;
+  const update = () => {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    bar.style.transform = `scaleX(${max > 0 ? h.scrollTop / max : 0})`;
+  };
+  window.addEventListener("scroll", update, { passive: true });
+  update();
+}
+
+/* ── Magnetic CTAs (micro-interaction) ── */
+function initMagneticButtons() {
+  if (reduced) return;
+  document.querySelectorAll(".btn-primary").forEach(btn => {
+    btn.addEventListener("pointermove", e => {
+      const r = btn.getBoundingClientRect();
+      const x = (e.clientX - r.left - r.width / 2) * 0.25;
+      const y = (e.clientY - r.top - r.height / 2) * 0.35;
+      btn.style.transform = `translate(${x}px, ${y}px)`;
+    });
+    btn.addEventListener("pointerleave", () => { btn.style.transform = ""; });
+  });
+}
+
+/* ── Animated counters / stat reveal ── */
+function initCounters() {
+  const cards = document.querySelectorAll(".stat-card .stat-num");
+  if (!cards.length) return;
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("stat-pulse"); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.5 });
+  cards.forEach(c => io.observe(c));
+}
+
+/* ── Scanline (V4) ── */
+function initScanline() {
+  const scanline = document.querySelector(".scanline");
+  if (!scanline || reduced) return;
+  const isHeroVisible = observeHeroVisibility();
+  let pos = 0;
+  (function scan() {
+    if (isHeroVisible()) {
+      pos = (pos + 0.12) % 100;
+      scanline.style.transform = `translateY(${pos}vh)`;
+    }
+    requestAnimationFrame(scan);
+  })();
+}
+
+/* ── Boot ── */
+document.body.insertBefore(renderNav(), document.body.firstChild);
+renderContent();
+document.getElementById("site-footer").replaceWith(renderFooter());
+initNav();
+initContactForm();
+initHeroVideo();
+initVisixGallery();
+initIndustryTabs();
+initPathCards();
+initLogoCarousel();
+initScrollProgress();
+initMagneticButtons();
+initCounters();
+initHeroAnime();
+initHeroThree();
+initHeroGeo();
+initShowcase3D();
+initScanline();
+// Smooth scroll must init before ScrollTrigger sync
+initSmoothScroll().then(initScroll);

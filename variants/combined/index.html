@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verity Tech — IT Consultant, Digital Signage & Software Solutions</title>
+  <meta name="description" content="Verity Tech Co., Ltd. — One-stop Hardware and Software Development Services. Digital Signage, Smart Office/Home, Custom Software, Data Analytics in Thailand.">
+  <meta name="theme-color" content="#2A1518">
+  <meta name="keywords" content="digital signage, smart office, custom software, data analytics, IT consultant, Thailand, Verity Tech, AxisTV, videowall">
+  <link rel="canonical" href="https://www.veritytech.co.th/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Verity Tech Co., Ltd.">
+  <meta property="og:title" content="Verity Tech — One-Stop Digital Solutions">
+  <meta property="og:description" content="INNOVATE • BUILD • ELEVATE — Hardware and Software Development Services">
+  <meta property="og:url" content="https://www.veritytech.co.th/">
+  <meta property="og:image" content="https://www.veritytech.co.th/assets/media/hero/team-collaboration.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Verity Tech — One-Stop Digital Solutions">
+  <meta name="twitter:description" content="Hardware & Software Development Services — Digital Signage, Smart Office, Custom Software, Data Analytics.">
+  <meta name="twitter:image" content="https://www.veritytech.co.th/assets/media/hero/team-collaboration.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/tokens-brand.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="../../assets/logo.svg" type="image/svg+xml">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Verity Tech Co., Ltd.",
+    "url": "https://www.veritytech.co.th/",
+    "logo": "https://www.veritytech.co.th/assets/media/verity-logo-full.png",
+    "description": "One-stop Hardware and Software Development Services — Digital Signage, Smart Office/Home, Custom Software, Data Analytics.",
+    "slogan": "INNOVATE • BUILD • ELEVATE",
+    "sameAs": ["https://www.facebook.com/veritytech.thailand"],
+    "address": { "@type": "PostalAddress", "addressCountry": "TH" },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "sales",
+      "email": "sasi@veritytech.co.th",
+      "telephone": "+66812345678"
+    }
+  }
+  </script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+  <section class="hero" id="hero" aria-label="Hero">
+    <video class="hero-video" autoplay muted loop playsinline poster="../../assets/media/hero/team-collaboration.jpg" aria-hidden="true">
+      <source src="https://video.wixstatic.com/video/a98ef9_acd5fba63188431c8546ada325553dd8f000/720p/mp4/file.mp4" type="video/mp4">
+    </video>
+    <div class="hero-video-overlay" aria-hidden="true"></div>
+    <canvas id="hero-canvas" aria-hidden="true"></canvas>
+    <div class="mesh-bg" aria-hidden="true"></div>
+    <div class="dot-pattern" aria-hidden="true"></div>
+    <div class="geo-accent geo-accent--tr" aria-hidden="true"></div>
+    <div class="geo-accent geo-accent--bl" aria-hidden="true"></div>
+    <div class="scanline" aria-hidden="true"></div>
+
+    <div class="container hero-inner">
+      <div class="hero-glass">
+        <p class="hero-brand-tag" data-animate="tag">INNOVATE • BUILD • ELEVATE</p>
+        <h1 class="hero-line">
+          <span class="line" data-animate="line">One-Stop</span>
+          <span class="line accent" data-animate="line">Digital</span>
+          <span class="line" data-animate="line">Solutions</span>
+        </h1>
+        <p class="hero-sub" data-animate="fade">
+          We provide a one-stop service of Hardware and Software Development Services.
+          Empower your business, leading your organization to the future based on your business plan.
+        </p>
+        <p class="hero-sub" data-animate="fade" style="margin-top:0.75rem">
+          <em class="swiftlet">Swiftlet</em> enables your innovation dreams into reality!
+        </p>
+        <div class="hero-actions" data-animate="fade">
+          <a href="#contact" class="btn btn-primary">Contact Sales</a>
+          <a href="#industries" class="btn btn-ghost">Explore Solutions</a>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-hidden="true">
+        <canvas id="hero-geo-canvas" class="hero-geo-canvas"></canvas>
+        <span class="swiftlet-badge">Swiftlet</span>
+      </div>
+    </div>
+    <div class="kinetic-bar" data-animate="bar"></div>
+    <div class="trust-bar" id="trust-bar" aria-label="Trust signals"></div>
+  </section>
+
+  <main id="main">
+    <section id="gateway-path" class="section section-compact">
+      <div class="container">
+        <p class="section-label reveal">Your Path</p>
+        <h2 class="section-title reveal" id="path-title"></h2>
+        <p class="section-desc reveal" id="path-sub"></p>
+        <div class="path-grid reveal" id="path-grid" role="list"></div>
+      </div>
+    </section>
+
+    <section id="industries" class="section section-light">
+      <div class="container">
+        <p class="section-label reveal">Industries</p>
+        <h2 class="section-title reveal" id="industries-title"></h2>
+        <p class="section-desc reveal" id="industries-sub"></p>
+        <div class="tab-list reveal" id="industry-tabs" role="tablist" aria-label="Solutions by industry"></div>
+        <div class="tab-panel reveal" id="industry-panel" role="tabpanel"></div>
+      </div>
+    </section>
+
+    <section id="services" class="section section-light">
+      <div class="container">
+        <p class="section-label reveal">What We Do</p>
+        <h2 class="section-title reveal">What do you need help with?</h2>
+        <p class="section-desc reveal">At Verity Tech, we're your one-stop shop for all your digital needs.</p>
+        <div class="service-grid" id="service-grid"></div>
+      </div>
+    </section>
+
+    <section id="hardware" class="section">
+      <div class="container">
+        <p class="section-label reveal">Hardware</p>
+        <h2 class="section-title reveal" id="hw-title"></h2>
+        <p class="section-desc reveal" id="hw-sub"></p>
+        <div class="card-grid card-grid--media" id="hw-grid"></div>
+        <div class="product-strip reveal" id="hw-products"></div>
+        <div class="take-care reveal" id="take-care"></div>
+        <div class="visix-section reveal" id="visix-section">
+          <h3 class="visix-title" id="visix-title"></h3>
+          <p class="section-desc" id="visix-intro"></p>
+          <div class="visix-gallery" id="visix-gallery" role="region" aria-label="Visix product screenshots"></div>
+          <div class="visix-products" id="visix-products"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="showcase-3d" class="section section-dark">
+      <div class="container showcase-3d-grid">
+        <div class="reveal">
+          <p class="section-label">Interactive</p>
+          <h2 class="section-title">Explore Our Solutions in 3D</h2>
+          <p class="section-desc">Drag to orbit — product imagery rendered with <a href="https://threejs.org/" target="_blank" rel="noopener">Three.js</a> WebGL, the same library powering threejs.org.</p>
+        </div>
+        <div class="showcase-canvas-wrap reveal">
+          <canvas id="showcase-canvas" aria-label="3D product showcase"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section id="software" class="section section-light">
+      <div class="container">
+        <p class="section-label reveal">Software</p>
+        <h2 class="section-title reveal" id="sw-title"></h2>
+        <p class="section-desc reveal" id="sw-sub"></p>
+        <div class="software-visual reveal" id="sw-visual"></div>
+        <div class="card-grid card-grid--media" id="sw-grid"></div>
+
+        <div class="feature-block reveal">
+          <h3 class="feature-block-title" id="dev-title"></h3>
+          <p class="section-desc" id="dev-intro"></p>
+          <div class="feature-grid" id="dev-grid"></div>
+        </div>
+
+        <div class="feature-block reveal">
+          <h3 class="feature-block-title" id="data-title"></h3>
+          <p class="section-desc" id="data-intro"></p>
+          <div class="feature-grid" id="data-grid"></div>
+        </div>
+
+        <div class="tech-stacks reveal" id="tech-stacks"></div>
+      </div>
+    </section>
+
+    <section id="about" class="section">
+      <div class="container about-grid">
+        <div class="reveal">
+          <p class="section-label">About Us</p>
+          <h2 class="section-title" id="about-title"></h2>
+          <p class="about-body" id="about-body"></p>
+          <p class="about-body muted" id="about-exp"></p>
+        </div>
+        <div class="about-visual reveal">
+          <figure class="about-photo">
+            <img id="about-photo" src="" alt="Verity Tech team collaboration" loading="lazy" width="640" height="427">
+          </figure>
+          <div class="stat-card accent"><span class="stat-num">HW+SW</span><span class="stat-label">One-Stop Shop</span></div>
+          <div class="stat-card"><span class="stat-num">NDA</span><span class="stat-label">Trusted Clients</span></div>
+          <div class="stat-card"><span class="stat-num">2023</span><span class="stat-label">Tech Leadership</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="partners" class="section">
+      <div class="container">
+        <p class="section-label reveal">Partners</p>
+        <h2 class="section-title reveal" id="partners-title"></h2>
+        <p class="section-desc reveal" id="partners-note"></p>
+        <div class="logo-carousel reveal" aria-label="Technology partners">
+          <div class="logo-carousel-track" id="logo-carousel"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="blog" class="section section-light">
+      <div class="container">
+        <p class="section-label reveal">Blog</p>
+        <h2 class="section-title reveal" id="blog-title"></h2>
+        <div id="blog-list"></div>
+      </div>
+    </section>
+
+    <section id="contact" class="section">
+      <div class="container contact-grid">
+        <div class="reveal">
+          <p class="section-label" id="contact-label"></p>
+          <h2 class="section-title" id="contact-cta"></h2>
+          <p class="section-desc" id="contact-desc"></p>
+          <div class="contact-person" id="contact-person"></div>
+          <a href="https://www.facebook.com/veritytech.thailand" class="btn btn-ghost" target="_blank" rel="noopener" style="margin-top:1rem">Facebook</a>
+        </div>
+        <form id="contact-form" class="contact-form reveal" novalidate>
+          <div class="form-group"><label for="name">Name *</label><input id="name" name="name" required minlength="2" autocomplete="name" aria-required="true"></div>
+          <div class="form-group"><label for="email">Email *</label><input id="email" name="email" type="email" required autocomplete="email" aria-required="true"></div>
+          <div class="form-group"><label for="message">Message *</label><textarea id="message" name="message" required minlength="10" aria-required="true"></textarea></div>
+          <button type="submit" class="btn btn-primary">Send Message</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="site-footer"></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true">Message sent! We'll be in touch.</div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
