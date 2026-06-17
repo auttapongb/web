@@ -9,9 +9,11 @@ export const MEDIA = {
   },
   hardware: {
     signageMockup: "../../assets/media/hardware/signage-mockup-all.png",
+    signageStreet: "../../assets/media/hardware/digital-signage-street.jpg",
     videowall: "../../assets/media/hardware/videowall-controller.jpeg",
     lcd: "../../assets/media/hardware/lcd-display.jpeg",
     smartOffice: "../../assets/media/hardware/smart-office-building.png",
+    smartHomeNeon: "../../assets/media/hardware/smart-home-fingertips.jpg",
     homeAutomation: "../../assets/media/hardware/home-automation.jpg",
     safetyWellness: "../../assets/media/hardware/safety-wellness.webp",
     lighting: "../../assets/media/hardware/lighting-entertainment.webp",

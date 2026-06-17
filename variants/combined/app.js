@@ -302,7 +302,7 @@ function renderContent() {
 }
 
 function renderIndustryPanel(ind) {
-  const panel = document.getElementById("industry-panel");
+  const panel = document.querySelector(".tab-panel");
   if (!panel || !ind) return;
   panel.id = `panel-${ind.id}`;
   panel.setAttribute("aria-labelledby", `tab-${ind.id}`);
