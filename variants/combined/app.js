@@ -299,6 +299,61 @@ function renderContent() {
     <p class="contact-detail"><span class="icon" aria-hidden="true">${icon("mail")}</span><a href="mailto:${cp.email}">${cp.email}</a></p>
     <p class="contact-detail"><span class="icon" aria-hidden="true">${icon("globe")}</span><a href="https://${C.company.domain}">${C.company.domain}</a></p>
     <p class="contact-detail"><span class="icon" aria-hidden="true">${icon("message")}</span><span>Line: ${cp.line}</span></p>`;
+
+  renderStats();
+  renderCapabilities();
+  renderFAQ();
+}
+
+/* ── Stat band — counts derived from real content (no fabricated metrics) ── */
+function renderStats() {
+  const band = document.getElementById("stat-band");
+  if (!band) return;
+  const sum = arr => arr.reduce((n, c) => n + (c.items?.length || 0), 0);
+  const ts = C.software.techStacks;
+  const technologies = ["frontend", "backend", "mobile", "data"].reduce((n, k) => n + ts[k].length, 0);
+  const stats = [
+    { value: C.gateway.industries.length, label: "Industries served" },
+    { value: sum(C.hardware.categories), label: "Hardware solutions" },
+    { value: sum(C.software.categories), label: "Software & data services" },
+    { value: technologies, label: "Technologies covered" },
+  ];
+  band.innerHTML = stats.map(s => `
+    <div class="stat-item reveal">
+      <span class="stat-value" data-target="${s.value}">0</span>
+      <span class="stat-cap">${s.label}</span>
+    </div>`).join("");
+}
+
+/* ── Capability bento (differentiators, not a service-list dupe) ── */
+function renderCapabilities() {
+  const cap = C.capabilities;
+  if (!cap) return;
+  document.getElementById("cap-label").textContent = cap.label;
+  document.getElementById("cap-title").textContent = cap.title;
+  document.getElementById("cap-sub").textContent = cap.subtitle;
+  document.getElementById("bento-grid").innerHTML = cap.tiles.map(t => `
+    <article class="bento-tile${t.feature ? " bento-tile--feature" : ""}">
+      <span class="bento-icon">${icon(t.icon)}</span>
+      <div class="bento-body">
+        <h3>${t.title}</h3>
+        <p>${t.body}</p>
+      </div>
+    </article>`).join("");
+}
+
+/* ── FAQ (accessible native disclosure) ── */
+function renderFAQ() {
+  const faq = C.faq;
+  if (!faq) return;
+  document.getElementById("faq-label").textContent = faq.label;
+  document.getElementById("faq-title").textContent = faq.title;
+  document.getElementById("faq-sub").textContent = faq.subtitle;
+  document.getElementById("faq-list").innerHTML = faq.items.map((it, i) => `
+    <details class="faq-item"${i === 0 ? " open" : ""}>
+      <summary class="faq-q"><span>${it.q}</span><span class="faq-icon" aria-hidden="true">${icon("plus")}</span></summary>
+      <div class="faq-a"><p>${it.a}</p></div>
+    </details>`).join("");
 }
 
 function renderIndustryPanel(ind) {
@@ -811,6 +866,86 @@ function initCounters() {
   cards.forEach(c => io.observe(c));
 }
 
+/* ── Rolling-digit stat band (tripo3d-style count-up) ── */
+function initStatCounters() {
+  const els = document.querySelectorAll(".stat-value");
+  if (!els.length) return;
+  if (reduced) { els.forEach(el => { el.textContent = el.dataset.target; }); return; }
+  const run = el => {
+    const target = Number(el.dataset.target) || 0;
+    const start = performance.now();
+    const tick = now => {
+      const p = Math.min((now - start) / 1200, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(target * eased);
+      if (p < 1) requestAnimationFrame(tick);
+      else el.classList.add("stat-pulse");
+    };
+    requestAnimationFrame(tick);
+  };
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { run(e.target); io.unobserve(e.target); } });
+  }, { threshold: 0.5 });
+  els.forEach(el => io.observe(el));
+}
+
+/* ── Branded page loader → cinematic intro (getlayers/motionsites) ── */
+function initLoader() {
+  const loader = document.getElementById("page-loader");
+  if (!loader) return;
+  if (reduced) { loader.remove(); return; }
+  const done = () => {
+    loader.classList.add("done");
+    setTimeout(() => loader.remove(), 700);
+  };
+  if (document.readyState === "complete") setTimeout(done, 400);
+  else window.addEventListener("load", () => setTimeout(done, 400));
+  setTimeout(done, 4000); // safety: never trap the page
+}
+
+/* ── Cursor-follow spotlight on hero (motionsites/designspells) ── */
+function initCursorSpotlight() {
+  if (reduced) return;
+  const hero = document.getElementById("hero");
+  const spot = document.getElementById("hero-spotlight");
+  if (!hero || !spot) return;
+  let raf = 0, x = 50, y = 40;
+  hero.addEventListener("pointermove", e => {
+    const r = hero.getBoundingClientRect();
+    x = ((e.clientX - r.left) / r.width) * 100;
+    y = ((e.clientY - r.top) / r.height) * 100;
+    if (!raf) raf = requestAnimationFrame(() => {
+      spot.style.setProperty("--mx", `${x}%`);
+      spot.style.setProperty("--my", `${y}%`);
+      raf = 0;
+    });
+  }, { passive: true });
+  hero.addEventListener("pointerenter", () => spot.classList.add("active"));
+  hero.addEventListener("pointerleave", () => spot.classList.remove("active"));
+}
+
+/* ── Subtle pointer tilt on bento tiles (transform-only) ── */
+function initBentoTilt() {
+  if (reduced) return;
+  document.querySelectorAll(".bento-tile").forEach(tile => {
+    tile.addEventListener("pointermove", e => {
+      const r = tile.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width - 0.5;
+      const py = (e.clientY - r.top) / r.height - 0.5;
+      tile.style.transform = `perspective(800px) rotateX(${-py * 4}deg) rotateY(${px * 4}deg)`;
+    });
+    tile.addEventListener("pointerleave", () => { tile.style.transform = ""; });
+  });
+}
+
+/* ── FAQ: single-open accordion (native details) ── */
+function initFAQ() {
+  const items = document.querySelectorAll(".faq-item");
+  items.forEach(d => d.addEventListener("toggle", () => {
+    if (d.open) items.forEach(o => { if (o !== d) o.open = false; });
+  }));
+}
+
 /* ── Scanline (V4) ── */
 function initScanline() {
   const scanline = document.querySelector(".scanline");
@@ -840,6 +975,11 @@ initLogoCarousel();
 initScrollProgress();
 initMagneticButtons();
 initCounters();
+initStatCounters();
+initLoader();
+initCursorSpotlight();
+initBentoTilt();
+initFAQ();
 initHeroAnime();
 initHeroThree();
 initHeroGeo();
