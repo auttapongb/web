@@ -93,6 +93,31 @@ export const VERITY_CONTENT = {
       { value: "Swiftlet", label: "Innovation Platform" },
     ],
   },
+  capabilities: {
+    label: "Why Verity Tech",
+    title: "One partner, end to end",
+    subtitle: "From the screen on the wall to the platform behind it — hardware and software under one roof.",
+    tiles: [
+      { icon: "layers", title: "One-stop hardware + software", body: "Skip the integrator shuffle. We design, build, and support both the devices and the software that runs them — accountable end to end.", feature: true },
+      { icon: "cube", title: "Swiftlet platform", body: "Our in-house innovation platform turns ideas into working products faster." },
+      { icon: "signal", title: "Digital signage at scale", body: "AxisTV, videowall controllers and LED/LCD managed from one place." },
+      { icon: "chart", title: "Data-driven decisions", body: "Data lakes, BI and analytics that turn raw data into action." },
+      { icon: "shield", title: "Security & compliance", body: "360° security reviews aligned to government regulations." },
+      { icon: "headset", title: "Local Thailand support", body: "A team you can reach by phone, email or Line — in your timezone." },
+    ],
+  },
+  faq: {
+    label: "FAQ",
+    title: "Questions, answered",
+    subtitle: "The essentials before you reach out.",
+    items: [
+      { q: "What does Verity Tech do?", a: "We're a one-stop hardware and software development partner. That spans digital signage and smart office/home hardware, plus custom software, mobile apps, and data analytics — built around your business plan." },
+      { q: "Can you build custom software?", a: "Yes. We deliver custom web and mobile apps, system architecture, UX/UI, testing automation, and DevOps. We work in industry-standard frameworks including React, AngularJS, and Python." },
+      { q: "What digital signage products do you provide?", a: "Smart digital signage, LED/LCD displays, 4K videowall controllers (HDMI/DVI/VGA), digital menu boards, and the AxisTV Signage Suite for cloud content management, scheduling, and room signs." },
+      { q: "Do you offer data consulting and analytics?", a: "Yes. We build cloud data platforms, data lakes/lakehouses, warehouses, BI and visualization, and advanced analytics — with data governance and customer-insight services." },
+      { q: "How do we get started?", a: "Send a message through the contact form, or reach our team directly by phone, email, or Line. We'll scope your needs and propose a hardware and/or software path." },
+    ],
+  },
   services: [
     {
       num: "001",
