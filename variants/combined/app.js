@@ -518,8 +518,12 @@ function initVisixGallery() {
 
 function initHeroVideo() {
   const video = document.querySelector(".hero-video");
-  if (!video || reduced) return;
-  video.play().catch(() => { video.style.display = "none"; });
+  if (!video) return;
+  if (reduced) { video.pause(); return; }
+  /* Scroll-scrub takes over in initScroll; keep paused until metadata loads */
+  video.pause();
+  video.loop = false;
+  video.autoplay = false;
 }
 
 function initContactForm() {
@@ -605,6 +609,7 @@ function initProcessReveal() {
     entries.forEach(e => {
       if (e.isIntersecting) {
         e.target.classList.add("visible");
+        e.target.querySelector(".process-icon")?.classList.add("pulse-once");
         syncProgress();
         io.unobserve(e.target);
       }
@@ -977,6 +982,31 @@ async function initShowcase3D() {
   }
 }
 
+/* ── Hero video scroll-scrub (CinePage / v3.1) ── */
+function initHeroVideoScrub(ScrollTrigger) {
+  const video = document.querySelector(".hero-video");
+  const hero = document.getElementById("hero");
+  if (!video || !hero || reduced) return;
+
+  const bind = () => {
+    const dur = video.duration;
+    if (!dur || !Number.isFinite(dur)) return;
+    ScrollTrigger.create({
+      trigger: hero,
+      start: "top top",
+      end: "bottom top",
+      scrub: 0.6,
+      onUpdate: self => {
+        video.currentTime = Math.min(dur - 0.04, self.progress * dur);
+      },
+    });
+  };
+
+  if (video.readyState >= 1) bind();
+  else video.addEventListener("loadedmetadata", bind, { once: true });
+  video.addEventListener("error", () => { video.style.display = "none"; }, { once: true });
+}
+
 /* ── Reveal on scroll (IntersectionObserver — robust with Lenis) ── */
 function initReveals() {
   const reveals = document.querySelectorAll(".reveal");
@@ -1028,6 +1058,8 @@ async function initScroll() {
       trigger: "#hero", start: "top top", end: "bottom top", scrub: true,
       onUpdate: self => { heroScroll = self.progress; },
     });
+
+    initHeroVideoScrub(ScrollTrigger);
 
     ScrollTrigger.refresh();
   } catch {

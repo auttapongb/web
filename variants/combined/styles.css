@@ -702,6 +702,19 @@ html { scrollbar-color: var(--vt-burgundy-muted) transparent; }
 }
 .sw-mockup--2 { transform: translateY(24px); }
 
+/* Ghost watermark — v3.1 (MotionSites TOONHUB pattern) */
+.section-ghost-wrap { position: relative; overflow: hidden; }
+.ghost-watermark {
+  position: absolute; top: 42%; left: 50%;
+  transform: translate(-50%, -50%) rotate(-8deg);
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(5rem, 16vw, 12rem);
+  color: var(--vt-burgundy); opacity: 0.035;
+  pointer-events: none; white-space: nowrap; letter-spacing: 0.06em;
+  z-index: 0;
+}
+.section-ghost-wrap > .container { position: relative; z-index: 1; }
+
 .stack-tag {
   display: inline-block; margin: 0.5rem 0; padding: 0.25rem 0.625rem;
   background: rgba(139,35,50,0.1); border-radius: 999px;
@@ -923,6 +936,11 @@ html { scrollbar-color: var(--vt-burgundy-muted) transparent; }
   transition: transform var(--duration-normal) var(--ease-out-expo), background var(--duration-normal);
 }
 .process-step:hover .process-icon { transform: translateY(-4px) scale(1.05); background: rgba(201, 169, 98, 0.2); }
+@keyframes processPulse {
+  0%, 100% { transform: scale(1); }
+  45% { transform: scale(1.14); box-shadow: 0 0 18px rgba(201, 169, 98, 0.45); }
+}
+.process-icon.pulse-once { animation: processPulse 0.65s var(--ease-out-expo); }
 .process-step h3 {
   font-family: var(--font-display); font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-primary);
 }
@@ -1330,6 +1348,8 @@ main .section + .section::before {
   .visix-main img { transition: none; }
   .hero-grain { display: none; }
   .spotlight-card::after { display: none; }
+  .process-icon.pulse-once { animation: none; }
+  .ghost-watermark { display: none; }
 }
 
 @media (max-width: 900px) {
