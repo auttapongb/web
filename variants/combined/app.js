@@ -142,7 +142,7 @@ function renderContent() {
   document.getElementById("path-sub").textContent = gw.pathSubtitle;
   document.getElementById("path-grid").innerHTML = gw.roles.map(r => `
     <a href="${r.href}" class="path-card" role="listitem" data-path="${r.id}">
-      <span class="path-icon">${icon(SERVICE_ICONS[r.icon] || "chart")}</span>
+      <span class="path-icon icon-motion">${icon(SERVICE_ICONS[r.icon] || "chart")}</span>
       <h3>${r.label}</h3>
       <p>${r.summary}</p>
       <span class="path-arrow" aria-hidden="true">→</span>
@@ -164,7 +164,7 @@ function renderContent() {
   document.getElementById("service-grid").innerHTML = C.services.map(s => `
     <a href="${s.href}" class="service-card reveal">
       <div class="service-num">${s.num}</div>
-      <div class="service-icon">${icon(SERVICE_ICONS[s.icon])}</div>
+      <div class="service-icon icon-motion">${icon(SERVICE_ICONS[s.icon])}</div>
       <h3>${s.name}</h3>
       <p>${s.summary}</p>
     </a>`).join("");
@@ -336,7 +336,7 @@ function renderProcess() {
   document.getElementById("process-steps").innerHTML = p.steps.map((s, i) => `
     <li class="process-step" style="--step-i:${i}">
       <span class="process-num">${s.num}</span>
-      <span class="process-icon">${icon(s.icon)}</span>
+      <span class="process-icon icon-motion">${icon(s.icon)}</span>
       <h3>${s.title}</h3>
       <p>${s.body}</p>
     </li>`).join("");
@@ -371,7 +371,7 @@ function renderCapabilities() {
   document.getElementById("cap-sub").textContent = cap.subtitle;
   document.getElementById("bento-grid").innerHTML = cap.tiles.map(t => `
     <article class="bento-tile${t.feature ? " bento-tile--feature" : ""}">
-      <span class="bento-icon">${icon(t.icon)}</span>
+      <span class="bento-icon icon-motion">${icon(t.icon)}</span>
       <div class="bento-body">
         <h3>${t.title}</h3>
         <p>${t.body}</p>
@@ -389,7 +389,7 @@ function renderFAQ() {
   document.getElementById("faq-list").innerHTML = faq.items.map((it, i) => `
     <details class="faq-item"${i === 0 ? " open" : ""}>
       <summary class="faq-q"><span>${it.q}</span><span class="faq-icon" aria-hidden="true">${icon("plus")}</span></summary>
-      <div class="faq-a"><p>${it.a}</p></div>
+      <div class="faq-a"><div class="faq-a-inner"><p>${it.a}</p></div></div>
     </details>`).join("");
 }
 
@@ -497,12 +497,21 @@ function initVisixGallery() {
   const gallery = document.getElementById("visix-gallery");
   const main = document.getElementById("visix-main-img");
   if (!gallery || !main) return;
+  const swap = src => {
+    if (main.getAttribute("src") === src) return;
+    if (reduced) { main.src = src; return; }
+    main.classList.add("is-fading");
+    setTimeout(() => {
+      main.src = src;
+      main.onload = () => main.classList.remove("is-fading");
+    }, 180);
+  };
   gallery.addEventListener("click", e => {
     const btn = e.target.closest(".visix-thumb");
     if (!btn) return;
     gallery.querySelectorAll(".visix-thumb").forEach(t => t.classList.remove("active"));
     btn.classList.add("active");
-    main.src = M.hardware.visix[Number(btn.dataset.index)];
+    swap(M.hardware.visix[Number(btn.dataset.index)]);
   });
 }
 
@@ -576,20 +585,54 @@ function initFormEnhance() {
 
 /* ── Process step stagger reveal ── */
 function initProcessReveal() {
+  const list = document.getElementById("process-steps");
   const steps = document.querySelectorAll(".process-step");
+  const syncProgress = () => {
+    if (!list || !steps.length) return;
+    const n = [...steps].filter(s => s.classList.contains("visible")).length;
+    list.style.setProperty("--process-progress", String(n / steps.length));
+  };
   if (!steps.length || reduced) {
     steps.forEach(s => s.classList.add("visible"));
+    syncProgress();
     return;
   }
   const io = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (e.isIntersecting) {
         e.target.classList.add("visible");
+        syncProgress();
         io.unobserve(e.target);
       }
     });
   }, { threshold: 0.2, rootMargin: "0px 0px -5% 0px" });
   steps.forEach(s => io.observe(s));
+}
+
+/* ── itshover-style SVG stroke draw on card hover ── */
+function initIconMotion() {
+  if (reduced) return;
+  const shapes = "path, polyline, line, circle, rect";
+  document.querySelectorAll(".icon-motion svg").forEach(svg => {
+    svg.querySelectorAll(shapes).forEach(el => {
+      const len = typeof el.getTotalLength === "function" ? el.getTotalLength() : 48;
+      el.dataset.strokeLen = len;
+      el.style.strokeDasharray = len;
+      el.style.strokeDashoffset = len;
+      el.style.transition = "stroke-dashoffset 0.55s var(--ease-out-expo)";
+    });
+  });
+  document.querySelectorAll(".path-card, .service-card, .bento-tile, .process-step").forEach(card => {
+    const draw = on => {
+      card.querySelectorAll(`.icon-motion svg ${shapes}`).forEach(el => {
+        el.style.strokeDashoffset = on ? "0" : el.dataset.strokeLen;
+      });
+    };
+    card.addEventListener("mouseenter", () => draw(true));
+    card.addEventListener("mouseleave", () => draw(false));
+    card.addEventListener("focusin", () => draw(true));
+    card.addEventListener("focusout", () => draw(false));
+  });
 }
 
 /* ── Split-word headline reveal (motionsites / Aceternity) ── */
@@ -884,6 +927,11 @@ async function initShowcase3D() {
     controls.maxDistance = 14;
     controls.autoRotate = true;
     controls.autoRotateSpeed = 0.6;
+
+    const wrap = canvas.closest(".showcase-canvas-wrap");
+    const dismissHint = () => wrap?.classList.add("hint-dismissed");
+    canvas.addEventListener("pointerdown", dismissHint, { once: true });
+    controls.addEventListener("start", dismissHint);
 
     let visible = false;
     const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { threshold: 0.1 });
@@ -1226,6 +1274,7 @@ initButtonRipple();
 initShaderMesh(document.getElementById("shader-mesh"), { opacity: 0.5 });
 initShaderMesh(document.getElementById("contact-shader-mesh"), { opacity: 0.35 });
 initProcessReveal();
+initIconMotion();
 initSplitReveal();
 initUnicornScene();
 initHeroAnime();

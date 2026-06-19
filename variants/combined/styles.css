@@ -634,7 +634,12 @@ html { scrollbar-color: var(--vt-burgundy-muted) transparent; }
   grid-column: 5; grid-row: 1 / span 4;
   border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;
 }
-.visix-main img { width: 100%; height: auto; max-height: 360px; object-fit: contain; background: var(--bg-secondary); }
+.visix-main img {
+  width: 100%; height: auto; max-height: 360px; object-fit: contain;
+  background: var(--bg-secondary);
+  transition: opacity 0.18s var(--ease-out-expo);
+}
+.visix-main img.is-fading { opacity: 0; }
 .visix-products {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;
 }
@@ -671,7 +676,21 @@ html { scrollbar-color: var(--vt-burgundy-muted) transparent; }
   50% { background-position: 100% 50%; }
 }
 .showcase-canvas-wrap:active { cursor: grabbing; }
-#showcase-canvas { width: 100%; height: 420px; display: block; }
+#showcase-canvas { width: 100%; height: 420px; display: block; position: relative; z-index: 0; }
+.showcase-hint {
+  position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); z-index: 2;
+  font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-muted); padding: 0.4rem 0.875rem;
+  background: rgba(42, 21, 24, 0.82); border: 1px solid var(--border);
+  border-radius: 999px; pointer-events: none;
+  animation: hintPulse 2.8s ease-in-out infinite;
+  transition: opacity var(--duration-normal);
+}
+.showcase-canvas-wrap.hint-dismissed .showcase-hint { opacity: 0; }
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.65; transform: translateX(-50%) translateY(0); }
+  50% { opacity: 1; transform: translateX(-50%) translateY(-3px); }
+}
 
 .software-visual {
   position: relative; display: flex; justify-content: center;
@@ -864,12 +883,20 @@ html { scrollbar-color: var(--vt-burgundy-muted) transparent; }
 .process-steps {
   list-style: none; margin-top: 2.5rem; padding: 0;
   display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.25rem;
-  position: relative;
+  position: relative; --process-progress: 0;
 }
 .process-steps::before {
   content: ""; position: absolute; top: 2.75rem; left: 8%; right: 8%; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--vt-gold), transparent);
+  background: linear-gradient(90deg, transparent, rgba(201, 169, 98, 0.35), transparent);
   pointer-events: none;
+}
+.process-steps::after {
+  content: ""; position: absolute; top: calc(2.75rem - 0.5px); left: 8%; height: 2px;
+  width: calc(var(--process-progress, 0) * 84%);
+  background: linear-gradient(90deg, var(--vt-gold), var(--vt-gold-light));
+  box-shadow: 0 0 10px rgba(201, 169, 98, 0.45);
+  pointer-events: none; z-index: 1;
+  transition: width 0.9s var(--ease-out-expo);
 }
 .process-step {
   text-align: center; padding: 1.25rem 0.75rem;
@@ -1108,7 +1135,13 @@ html { scrollbar-color: var(--vt-burgundy-muted) transparent; }
   transition: transform var(--duration-normal) var(--ease-out-expo);
 }
 .faq-item[open] .faq-icon { transform: rotate(135deg); }
-.faq-a { padding: 0 1.25rem 1.2rem; }
+.faq-a {
+  display: grid; grid-template-rows: 0fr;
+  padding: 0 1.25rem;
+  transition: grid-template-rows 0.35s var(--ease-out-expo), padding 0.35s var(--ease-out-expo);
+}
+.faq-item[open] .faq-a { grid-template-rows: 1fr; padding-bottom: 1.2rem; }
+.faq-a-inner { overflow: hidden; min-height: 0; }
 .faq-a p { color: var(--text-secondary); line-height: 1.65; text-wrap: pretty; }
 
 /* ── Look & feel polish: resting elevation on light surfaces ── */
@@ -1207,6 +1240,13 @@ main .section + .section::before {
 .path-card:hover .path-icon { transform: translateY(-3px) scale(1.06); }
 .feature-card:hover .feature-icon { transform: translateY(-3px) rotate(-6deg) scale(1.06); }
 
+/* itshover: stroke draw on hover (paths prepped in initIconMotion) */
+.icon-motion svg path,
+.icon-motion svg polyline,
+.icon-motion svg line,
+.icon-motion svg circle,
+.icon-motion svg rect { vector-effect: non-scaling-stroke; }
+
 /* Refined glass top-edge highlight on the hero panel */
 .hero-glass {
   box-shadow: inset 0 1px 0 rgba(232, 200, 114, 0.12), 0 8px 40px rgba(0, 0, 0, 0.25);
@@ -1219,11 +1259,21 @@ main .section + .section::before {
   .footer-copy { grid-column: 1 / -1; border-top: 1px solid var(--border); padding-top: 1.5rem; }
 }
 
+@media (max-width: 768px) {
+  body:has(.mobile-cta.show) .to-top.show {
+    bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .card--media:hover .card-img,
   .product-card:hover img,
   .industry-visual:hover img,
   .blog-card:hover .blog-img { transform: none; }
+  .showcase-hint { animation: none; opacity: 0.85; }
+  .faq-a { transition: none; }
+  .process-steps::after { transition: none; }
+  .visix-main img { transition: none; }
 }
 
 @media (max-width: 900px) {
