@@ -137,6 +137,15 @@
       </div>
     </section>
 
+    <section id="compare" class="section">
+      <div class="container">
+        <p class="section-label reveal" id="compare-label"></p>
+        <h2 class="section-title reveal" id="compare-title"></h2>
+        <p class="section-desc reveal" id="compare-sub"></p>
+        <div class="compare-grid reveal" id="compare-grid"></div>
+      </div>
+    </section>
+
     <section id="stats" class="section section-dark section-compact" aria-label="By the numbers">
       <div class="container">
         <div class="stat-band" id="stat-band"></div>
@@ -182,14 +191,18 @@
       <div class="container showcase-3d-grid">
         <div class="reveal">
           <p class="section-label">Interactive</p>
-          <h2 class="section-title">Explore Our Solutions in 3D</h2>
+          <h2 class="section-title split-reveal">Explore Our Solutions in 3D</h2>
           <p class="section-desc">Drag to orbit — product imagery rendered with <a href="https://threejs.org/" target="_blank" rel="noopener">Three.js</a> WebGL, the same library powering threejs.org.</p>
         </div>
         <div class="showcase-canvas-wrap reveal">
           <canvas id="showcase-canvas" aria-label="3D product showcase"></canvas>
+          <!-- Optional Unicorn Studio scene: set content.unicorn.enabled + projectId -->
+          <div id="unicorn-scene" class="unicorn-scene" hidden aria-hidden="true"></div>
         </div>
       </div>
     </section>
+
+    <div class="section-beam" aria-hidden="true"><span class="section-beam-line"></span></div>
 
     <section id="software" class="section section-light">
       <div class="container">

@@ -93,6 +93,43 @@ export const VERITY_CONTENT = {
       { value: "Swiftlet", label: "Innovation Platform" },
     ],
   },
+  compare: {
+    label: "Solutions",
+    title: "Hardware, software, or both?",
+    subtitle: "Most engagements combine both pillars — pick where you want to start.",
+    columns: [
+      {
+        id: "hardware",
+        title: "Hardware Solutions",
+        href: "#hardware",
+        highlights: [
+          "Digital Signage & LED/LCD",
+          "Smart Office / Smart Home",
+          "Videowall Controllers (4K)",
+          "AxisTV & Visix Suite",
+          "Take Care AI Safety",
+        ],
+        cta: "Explore Hardware",
+      },
+      {
+        id: "software",
+        title: "Software Solutions",
+        href: "#software",
+        highlights: [
+          "Custom Web & Mobile Apps",
+          "Data Lakes & BI",
+          "Cloud Data Platform",
+          "System Integration",
+          "DevOps & Security",
+        ],
+        cta: "Explore Software",
+      },
+    ],
+  },
+  unicorn: {
+    enabled: false,
+    projectId: "",
+  },
   process: {
     label: "How We Work",
     title: "From plan to production",

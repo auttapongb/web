@@ -304,7 +304,22 @@ function renderContent() {
   renderStats();
   renderCapabilities();
   renderProcess();
+  renderCompare();
   renderFAQ();
+}
+
+function renderCompare() {
+  const cmp = C.compare;
+  if (!cmp) return;
+  document.getElementById("compare-label").textContent = cmp.label;
+  document.getElementById("compare-title").textContent = cmp.title;
+  document.getElementById("compare-sub").textContent = cmp.subtitle;
+  document.getElementById("compare-grid").innerHTML = cmp.columns.map(col => `
+    <article class="compare-col compare-col--${col.id}">
+      <h3>${col.title}</h3>
+      <ul>${col.highlights.map(h => `<li>${h}</li>`).join("")}</ul>
+      <a href="${col.href}" class="btn btn-primary btn-sm">${col.cta}</a>
+    </article>`).join("");
 }
 
 /* ── Process timeline (figcomponents / motionsites) ── */
@@ -524,6 +539,47 @@ function initProcessReveal() {
     });
   }, { threshold: 0.2, rootMargin: "0px 0px -5% 0px" });
   steps.forEach(s => io.observe(s));
+}
+
+/* ── Split-word headline reveal (motionsites / Aceternity) ── */
+function initSplitReveal() {
+  const els = document.querySelectorAll(".split-reveal");
+  if (!els.length) return;
+  els.forEach(el => {
+    if (el.dataset.splitDone) return;
+    const words = el.textContent.trim().split(/\s+/);
+    el.textContent = "";
+    el.dataset.splitDone = "1";
+    words.forEach((word, i) => {
+      const span = document.createElement("span");
+      span.className = "split-word";
+      span.style.setProperty("--wi", i);
+      span.textContent = word;
+      el.appendChild(span);
+      if (i < words.length - 1) el.appendChild(document.createTextNode(" "));
+    });
+    if (reduced) { el.classList.add("visible"); return; }
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { el.classList.add("visible"); io.disconnect(); }
+    }, { threshold: 0.4 });
+    io.observe(el);
+  });
+}
+
+/* ── Optional Unicorn Studio embed (unicorn.studio) ── */
+function initUnicornScene() {
+  const cfg = C.unicorn;
+  const host = document.getElementById("unicorn-scene");
+  if (!cfg?.enabled || !cfg.projectId || !host || reduced) return;
+  host.hidden = false;
+  host.setAttribute("data-us-project", cfg.projectId);
+  host.setAttribute("data-us-production", "true");
+  host.setAttribute("data-us-lazyload", "true");
+  host.style.cssText = "width:100%;height:100%;position:absolute;inset:0;";
+  const script = document.createElement("script");
+  script.src = "https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v2.2.5/dist/unicornStudio.umd.js";
+  script.defer = true;
+  document.head.appendChild(script);
 }
 
 /* ── anime.js hero (MotionSites-style stagger) ── */
@@ -1118,6 +1174,8 @@ initButtonRipple();
 initShaderMesh(document.getElementById("shader-mesh"), { opacity: 0.5 });
 initShaderMesh(document.getElementById("contact-shader-mesh"), { opacity: 0.35 });
 initProcessReveal();
+initSplitReveal();
+initUnicornScene();
 initHeroAnime();
 initHeroThree();
 initHeroGeo();
