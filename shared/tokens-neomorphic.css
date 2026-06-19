@@ -1,0 +1,66 @@
+/**
+ * Neomorphic Premium — 2026–2027 light theme tokens
+ * Master Blueprint: burgundy + gold on tactile #F0F2F5 surfaces
+ */
+:root {
+  --primary-burgundy: #800020;
+  --accent-gold: #D4AF37;
+  --surface-light: #F0F2F5;
+  --shadow-dark: #D1D9E6;
+  --shadow-highlight: #FFFFFF;
+
+  /* Aliases for shared component styles */
+  --vt-burgundy: var(--primary-burgundy);
+  --vt-burgundy-deep: #6B001A;
+  --vt-burgundy-dark: #5A0016;
+  --vt-burgundy-muted: #9A2040;
+  --vt-gold: var(--accent-gold);
+  --vt-gold-light: #E4C75A;
+  --vt-gold-dark: #B8962E;
+  --vt-champagne: #F5F0E6;
+
+  --bg-primary: var(--surface-light);
+  --bg-secondary: #E8EBF0;
+  --bg-elevated: #FFFFFF;
+  --bg-light: var(--surface-light);
+  --bg-light-alt: #E4E8EE;
+
+  --text-primary: #333333;
+  --text-secondary: #555555;
+  --text-muted: #7A8494;
+  --text-on-light: #333333;
+  --text-on-light-muted: #666666;
+
+  --border: rgba(128, 0, 32, 0.12);
+  --border-light: rgba(128, 0, 32, 0.1);
+  --glass-fill: var(--surface-light);
+  --glass-border: rgba(212, 175, 55, 0.35);
+
+  --gradient-hero: linear-gradient(160deg, #F0F2F5 0%, #E8EBF0 50%, #F5F7FA 100%);
+  --gradient-gold: linear-gradient(135deg, var(--vt-gold-light), var(--vt-gold));
+  --gradient-burgundy: linear-gradient(135deg, var(--vt-burgundy), var(--vt-burgundy-deep));
+
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spatial: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --duration-fast: 200ms;
+  --duration-normal: 400ms;
+  --duration-slow: 800ms;
+
+  --nav-height: 76px;
+  --max-width: 1200px;
+  --radius: 16px;
+  --radius-lg: 24px;
+
+  --neo-shadow:
+    10px 10px 20px var(--shadow-dark),
+    -10px -10px 20px var(--shadow-highlight);
+  --neo-shadow-inset:
+    inset 6px 6px 12px var(--shadow-dark),
+    inset -6px -6px 12px var(--shadow-highlight);
+  --neo-shadow-hover:
+    14px 14px 28px var(--shadow-dark),
+    -14px -14px 28px var(--shadow-highlight);
+}

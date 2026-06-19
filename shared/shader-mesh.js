@@ -2,7 +2,7 @@
  * Flowing gradient mesh (shadergradient.co aesthetic, static HTML).
  * Canvas 2D — burgundy/gold brand palette. Pauses off-screen.
  */
-export function initShaderMesh(canvas, { opacity = 0.55 } = {}) {
+export function initShaderMesh(canvas, { opacity = 0.55, theme = "dark" } = {}) {
   if (!canvas) return () => {};
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (reduced) {
@@ -13,13 +13,21 @@ export function initShaderMesh(canvas, { opacity = 0.55 } = {}) {
   const ctx = canvas.getContext("2d", { alpha: true });
   if (!ctx) return () => {};
 
-  const palette = [
-    [139, 35, 50, 0.55],
-    [107, 26, 40, 0.45],
-    [201, 169, 98, 0.35],
-    [232, 200, 114, 0.28],
-    [74, 40, 48, 0.4],
-  ];
+  const palette = theme === "light"
+    ? [
+        [209, 217, 230, 0.35],
+        [212, 175, 55, 0.28],
+        [128, 0, 32, 0.15],
+        [240, 242, 245, 0.5],
+        [200, 210, 225, 0.3],
+      ]
+    : [
+        [139, 35, 50, 0.55],
+        [107, 26, 40, 0.45],
+        [201, 169, 98, 0.35],
+        [232, 200, 114, 0.28],
+        [74, 40, 48, 0.4],
+      ];
 
   let w = 0;
   let h = 0;

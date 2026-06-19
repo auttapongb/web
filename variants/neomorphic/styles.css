@@ -1,0 +1,355 @@
+/**
+ * Neomorphic Premium v4 — light theme overrides
+ * Base components: variants/combined/styles.css
+ */
+@import url("../combined/styles.css");
+
+/* ── Global light shell ── */
+.theme-neomorphic {
+  background: var(--surface-light);
+  color: var(--text-primary);
+}
+
+.theme-neomorphic .section-light,
+.theme-neomorphic .section-dark,
+.theme-neomorphic .section-neo-muted {
+  background: var(--surface-light);
+  color: var(--text-primary);
+}
+
+.theme-neomorphic .section-desc,
+.theme-neomorphic .card p,
+.theme-neomorphic .service-card p {
+  color: var(--text-secondary);
+}
+
+.theme-neomorphic .section-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--primary-burgundy);
+}
+
+.theme-neomorphic .section-label {
+  color: var(--accent-gold);
+}
+
+.theme-neomorphic .section-label::before {
+  background: var(--accent-gold);
+  opacity: 0.85;
+}
+
+/* ── Neomorphic surface utility ── */
+.neo-surface {
+  background: var(--surface-light);
+  box-shadow: var(--neo-shadow);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+}
+
+/* ── Nav: light neomorphic bar ── */
+.theme-neomorphic .site-nav {
+  background: rgba(240, 242, 245, 0.88);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+.theme-neomorphic .site-nav.scrolled {
+  background: rgba(240, 242, 245, 0.96);
+  box-shadow: 0 4px 24px rgba(209, 217, 230, 0.45);
+}
+.theme-neomorphic .nav-link,
+.theme-neomorphic .dropdown-toggle {
+  color: var(--text-secondary);
+}
+.theme-neomorphic .nav-link:hover,
+.theme-neomorphic .dropdown-toggle:hover {
+  color: var(--primary-burgundy);
+  background: rgba(128, 0, 32, 0.05);
+}
+.theme-neomorphic .nav-link.active { color: var(--primary-burgundy); }
+.theme-neomorphic .dropdown {
+  background: var(--surface-light);
+  box-shadow: var(--neo-shadow);
+  border-color: rgba(212, 175, 55, 0.25);
+}
+
+/* ── Buttons ── */
+.theme-neomorphic .btn-primary {
+  background: var(--primary-burgundy);
+  border-color: var(--primary-burgundy);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.8125rem;
+  transition: all 0.4s var(--ease-spatial);
+}
+.theme-neomorphic .btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(128, 0, 32, 0.25);
+}
+.theme-neomorphic .btn-ghost {
+  color: var(--primary-burgundy);
+  border-color: rgba(212, 175, 55, 0.55);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.8125rem;
+  transition: all 0.4s var(--ease-spatial);
+}
+.theme-neomorphic .btn-ghost:hover {
+  background: rgba(212, 175, 55, 0.1);
+  transform: translateY(-2px);
+}
+
+/* ── Gold divider (15° — business card) ── */
+.gold-divider-wrap {
+  display: flex; justify-content: center;
+  padding: 0.5rem 0; overflow: hidden;
+}
+.gold-divider {
+  display: block; width: min(920px, 78%); height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+  transform: rotate(-15deg);
+  opacity: 0.75;
+}
+
+/* ── Hero: logo centerpiece ── */
+.hero-neo {
+  position: relative; min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: var(--gradient-hero);
+  overflow: hidden; padding-top: var(--nav-height);
+}
+.hero-neo .shader-mesh { opacity: 0.05; mix-blend-mode: multiply; }
+.hero-mesh-blur {
+  position: absolute; inset: -20%;
+  background: linear-gradient(45deg, rgba(212, 175, 55, 0.12), rgba(209, 217, 230, 0.2), rgba(128, 0, 32, 0.06));
+  filter: blur(80px);
+  animation: meshDrift 18s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes meshDrift {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(4%, -3%) scale(1.06); }
+}
+.hero-neo-inner {
+  position: relative; z-index: 2;
+  text-align: center; max-width: 720px;
+  padding: 2rem 0 4rem;
+}
+.hero-logo-wrap {
+  margin: 0 auto 1.75rem; width: 168px; height: 168px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--surface-light);
+  box-shadow: var(--neo-shadow);
+}
+.hero-logo-breathe {
+  width: 140px; height: 140px;
+  animation: logoBreath 4s ease-in-out infinite;
+}
+@keyframes logoBreath {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+.hero-neo-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 6vw, 3.75rem);
+  font-weight: 700; letter-spacing: -0.02em;
+  line-height: 1.08; margin-bottom: 1.25rem;
+  color: var(--primary-burgundy);
+}
+.hero-neo-title .accent {
+  color: var(--accent-gold);
+  background: none;
+  -webkit-text-fill-color: unset;
+}
+.hero-neo-sub {
+  color: var(--text-secondary);
+  max-width: 560px; margin-inline: auto;
+}
+.theme-neomorphic .hero-brand-tag {
+  color: var(--accent-gold);
+  margin-bottom: 1rem;
+}
+.theme-neomorphic .hero-scroll-cue {
+  color: var(--text-muted);
+  bottom: 2rem;
+}
+.theme-neomorphic .neo-trust {
+  position: relative; z-index: 2; margin-top: auto;
+  background: transparent;
+  border-top: 1px solid rgba(212, 175, 55, 0.25);
+}
+.theme-neomorphic .trust-badge {
+  background: var(--surface-light);
+  box-shadow: var(--neo-shadow);
+  border: none;
+  border-radius: var(--radius-lg);
+}
+.theme-neomorphic .trust-value { color: var(--primary-burgundy); }
+.theme-neomorphic .trust-label { color: var(--text-muted); }
+
+/* ── Industry neomorphic bento ── */
+.neo-industry-bento {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem; margin-top: 2rem;
+}
+.neo-bento-card {
+  display: flex; flex-direction: column;
+  color: inherit; overflow: hidden;
+  transition: all 0.4s var(--ease-spatial);
+}
+.neo-bento-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--neo-shadow-hover);
+  color: inherit;
+}
+.neo-bento-img {
+  margin: 0; overflow: hidden;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.neo-bento-img img {
+  width: 100%; height: 180px; object-fit: cover;
+  transition: transform 0.5s var(--ease-out-expo);
+}
+.neo-bento-card:hover .neo-bento-img img { transform: scale(1.04); }
+.neo-bento-body { padding: 1.5rem 1.75rem 1.75rem; }
+.neo-bento-label {
+  font-size: 0.6875rem; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--accent-gold);
+}
+.neo-bento-body h3 {
+  font-family: var(--font-display);
+  font-size: 1.25rem; margin: 0.5rem 0 0.625rem;
+  color: var(--primary-burgundy);
+}
+.neo-bento-body p {
+  font-size: 0.9375rem; color: var(--text-secondary); line-height: 1.55;
+}
+
+/* ── Path / service / card neo surfaces ── */
+.theme-neomorphic .path-card,
+.theme-neomorphic .service-card,
+.theme-neomorphic .card,
+.theme-neomorphic .compare-col,
+.theme-neomorphic .bento-tile,
+.theme-neomorphic .product-card,
+.theme-neomorphic .blog-card,
+.theme-neomorphic .faq-item {
+  background: var(--surface-light);
+  box-shadow: var(--neo-shadow);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+}
+.theme-neomorphic .path-card::before,
+.theme-neomorphic .service-card::before,
+.theme-neomorphic .compare-col::before { display: none; }
+.theme-neomorphic .path-card:hover,
+.theme-neomorphic .service-card:hover,
+.theme-neomorphic .compare-col:hover,
+.theme-neomorphic .card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--neo-shadow-hover);
+  transition: all 0.4s var(--ease-spatial);
+  border-color: rgba(212, 175, 55, 0.45);
+}
+.theme-neomorphic .path-icon,
+.theme-neomorphic .service-icon {
+  background: var(--primary-burgundy);
+  color: var(--accent-gold);
+}
+.theme-neomorphic .service-num { color: var(--accent-gold); }
+
+/* ── Contact: business-card layout ── */
+.contact-neo {
+  background: var(--surface-light);
+  position: relative; overflow: hidden;
+}
+.contact-neo .contact-shader-mesh { opacity: 0.04; mix-blend-mode: multiply; }
+.contact-neo .contact-grid {
+  align-items: start;
+}
+.contact-neo .contact-form,
+.contact-neo .contact-grid > .reveal:first-child {
+  background: var(--surface-light);
+  box-shadow: var(--neo-shadow);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+.theme-neomorphic .contact-detail a { color: var(--primary-burgundy); }
+.theme-neomorphic .form-group input,
+.theme-neomorphic .form-group textarea {
+  background: var(--surface-light);
+  box-shadow: var(--neo-shadow-inset);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  color: var(--text-primary);
+}
+.theme-neomorphic .form-group input:focus,
+.theme-neomorphic .form-group textarea:focus {
+  border-color: var(--accent-gold);
+  box-shadow: var(--neo-shadow-inset), 0 0 0 3px rgba(212, 175, 55, 0.15);
+}
+
+/* ── Stats / process on light ── */
+.theme-neomorphic .stat-value { color: var(--primary-burgundy); }
+.theme-neomorphic .stat-item:not(:last-child)::after {
+  background: rgba(212, 175, 55, 0.35);
+}
+.theme-neomorphic .process-icon {
+  background: var(--surface-light);
+  box-shadow: var(--neo-shadow);
+  color: var(--primary-burgundy);
+  border: none;
+}
+.theme-neomorphic .process-step h3 { color: var(--primary-burgundy); }
+
+/* ── Footer ── */
+.theme-neomorphic .site-footer {
+  background: var(--bg-secondary);
+  border-top: 1px solid rgba(212, 175, 55, 0.25);
+}
+.theme-neomorphic .footer-copy { border-top-color: rgba(212, 175, 55, 0.2); }
+
+/* ── Mobile CTA + scroll progress ── */
+.theme-neomorphic .mobile-cta {
+  background: rgba(240, 242, 245, 0.96);
+  border-top-color: rgba(212, 175, 55, 0.3);
+}
+.theme-neomorphic .scroll-progress {
+  background: linear-gradient(90deg, var(--primary-burgundy), var(--accent-gold));
+}
+
+/* ── Page loader light ── */
+.theme-neomorphic .page-loader {
+  background: var(--surface-light);
+}
+.theme-neomorphic .page-loader-monogram { color: var(--primary-burgundy); }
+.theme-neomorphic .page-loader-word { color: var(--text-muted); }
+
+/* ── Spotlight on light cards ── */
+.theme-neomorphic .spotlight-card::after {
+  background: radial-gradient(
+    240px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(212, 175, 55, 0.12),
+    transparent 65%
+  );
+}
+
+/* ── Hide dark-only section seams ── */
+.theme-neomorphic main .section + .section::before { display: none; }
+.theme-neomorphic #contact {
+  background: var(--surface-light);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-logo-breathe,
+  .hero-mesh-blur { animation: none; }
+}
+
+@media (max-width: 560px) {
+  .hero-logo-wrap { width: 140px; height: 140px; }
+  .hero-logo-breathe { width: 116px; height: 116px; }
+}
