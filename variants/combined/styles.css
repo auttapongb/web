@@ -41,6 +41,17 @@ a:hover { color: var(--vt-champagne); }
 
 img, svg { max-width: 100%; display: block; }
 
+::selection { background: var(--vt-gold); color: var(--bg-primary); }
+
+html { scrollbar-color: var(--vt-burgundy-muted) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb {
+  background: var(--vt-burgundy-muted); border-radius: 999px;
+  border: 2px solid var(--bg-primary);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--vt-gold-dark); }
+
 .skip-link {
   position: absolute; top: -100px; left: 1rem;
   background: var(--vt-burgundy); color: var(--text-primary);
@@ -62,13 +73,18 @@ img, svg { max-width: 100%; display: block; }
 .section-light .section-desc { color: var(--text-on-light-muted); }
 
 .section-label {
+  display: inline-flex; align-items: center; gap: 0.625rem;
   font-size: 0.75rem; font-weight: 600; letter-spacing: 0.14em;
   text-transform: uppercase; color: var(--vt-gold); margin-bottom: 0.75rem;
+}
+.section-label::before {
+  content: ""; width: 26px; height: 1px;
+  background: currentColor; opacity: 0.55;
 }
 .section-title {
   font-family: var(--font-display);
   font-size: clamp(1.75rem, 4vw, 2.75rem);
-  font-weight: 700; line-height: 1.12; margin-bottom: 1rem;
+  font-weight: 700; line-height: 1.12; letter-spacing: -0.02em; margin-bottom: 1rem;
 }
 .section-desc { color: var(--text-secondary); max-width: 640px; margin-bottom: 2.5rem; }
 
@@ -83,11 +99,14 @@ img, svg { max-width: 100%; display: block; }
   background: var(--gradient-burgundy); color: var(--text-primary);
   box-shadow: 0 4px 24px rgba(139, 35, 50, 0.4);
   border: 1px solid rgba(232, 200, 114, 0.25);
-  will-change: transform;
+  transition: transform var(--duration-fast) var(--ease-out-expo),
+              box-shadow var(--duration-normal),
+              border-color var(--duration-fast);
 }
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 32px rgba(139, 35, 50, 0.55);
+  border-color: var(--vt-gold);
   color: var(--text-primary);
 }
 .btn-ghost {
@@ -252,7 +271,7 @@ img, svg { max-width: 100%; display: block; }
 .hero-line {
   font-family: var(--font-display);
   font-size: clamp(2.25rem, 5.5vw, 3.75rem);
-  font-weight: 700; line-height: 1.02; overflow: hidden;
+  font-weight: 700; line-height: 1.02; letter-spacing: -0.025em; overflow: hidden;
 }
 .hero-line .line { display: block; }
 .hero-line .accent { color: var(--vt-gold-light); }
@@ -848,6 +867,33 @@ img, svg { max-width: 100%; display: block; }
 .faq-item[open] .faq-icon { transform: rotate(135deg); }
 .faq-a { padding: 0 1.25rem 1.2rem; }
 .faq-a p { color: var(--text-secondary); line-height: 1.65; text-wrap: pretty; }
+
+/* ── Look & feel polish: resting elevation on light surfaces ── */
+.section-light .card,
+.section-light .service-card,
+.feature-card,
+.bento-tile {
+  box-shadow: 0 1px 2px rgba(61, 31, 36, 0.05), 0 10px 30px rgba(61, 31, 36, 0.06);
+}
+.bento-tile--feature {
+  box-shadow: 0 8px 30px rgba(107, 26, 40, 0.28);
+}
+.feature-card:hover,
+.section-light .card:hover,
+.section-light .service-card:hover {
+  box-shadow: 0 1px 2px rgba(61, 31, 36, 0.06), 0 18px 44px rgba(139, 35, 50, 0.16);
+}
+/* Warm the light-surface cards a touch for cohesion with the stone background */
+.section-light .card,
+.section-light .service-card,
+.feature-card,
+.bento-tile:not(.bento-tile--feature) { background: #FFFDFB; }
+
+/* Generous rhythm on large screens */
+@media (min-width: 1200px) {
+  .section { padding: 7rem 0; }
+  .section-compact { padding: 4.5rem 0; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .page-loader-monogram, .page-loader-fill { animation: none; }
