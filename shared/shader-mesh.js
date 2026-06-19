@@ -62,10 +62,10 @@ export function initShaderMesh(canvas, { opacity = 0.55 } = {}) {
     raf = requestAnimationFrame(draw);
   };
 
-  const hero = canvas.closest("#hero");
-  if (hero) {
+  const host = canvas.closest("#hero, .section-contact, section");
+  if (host) {
     const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { threshold: 0.05 });
-    io.observe(hero);
+    io.observe(host);
   }
 
   resize();

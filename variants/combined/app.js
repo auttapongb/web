@@ -303,7 +303,24 @@ function renderContent() {
 
   renderStats();
   renderCapabilities();
+  renderProcess();
   renderFAQ();
+}
+
+/* ── Process timeline (figcomponents / motionsites) ── */
+function renderProcess() {
+  const p = C.process;
+  if (!p) return;
+  document.getElementById("process-label").textContent = p.label;
+  document.getElementById("process-title").textContent = p.title;
+  document.getElementById("process-sub").textContent = p.subtitle;
+  document.getElementById("process-steps").innerHTML = p.steps.map((s, i) => `
+    <li class="process-step" style="--step-i:${i}">
+      <span class="process-num">${s.num}</span>
+      <span class="process-icon">${icon(s.icon)}</span>
+      <h3>${s.title}</h3>
+      <p>${s.body}</p>
+    </li>`).join("");
 }
 
 /* ── Stat band — counts derived from real content (no fabricated metrics) ── */
@@ -474,6 +491,39 @@ function openMailto({ name = "", email = "", message = "" }) {
   const subject = encodeURIComponent(`Website enquiry from ${name || "a visitor"}`);
   const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`);
   window.location.href = `mailto:${C.contact.person.email}?subject=${subject}&body=${body}`;
+}
+
+/* ── Form field validation UX (figcomponents / designspells) ── */
+function initFormEnhance() {
+  const form = document.getElementById("contact-form");
+  if (!form) return;
+  form.querySelectorAll("input, textarea").forEach(field => {
+    const sync = () => {
+      const touched = field.value.length > 0;
+      field.classList.toggle("field-valid", touched && field.validity.valid);
+      field.classList.toggle("field-invalid", touched && !field.validity.valid);
+    };
+    field.addEventListener("blur", sync);
+    field.addEventListener("input", sync);
+  });
+}
+
+/* ── Process step stagger reveal ── */
+function initProcessReveal() {
+  const steps = document.querySelectorAll(".process-step");
+  if (!steps.length || reduced) {
+    steps.forEach(s => s.classList.add("visible"));
+    return;
+  }
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add("visible");
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.2, rootMargin: "0px 0px -5% 0px" });
+  steps.forEach(s => io.observe(s));
 }
 
 /* ── anime.js hero (MotionSites-style stagger) ── */
@@ -1046,6 +1096,7 @@ renderContent();
 document.getElementById("site-footer").replaceWith(renderFooter());
 initNav();
 initContactForm();
+initFormEnhance();
 initHeroVideo();
 initVisixGallery();
 initIndustryTabs();
@@ -1065,6 +1116,8 @@ initMarquee();
 initScrollCue();
 initButtonRipple();
 initShaderMesh(document.getElementById("shader-mesh"), { opacity: 0.5 });
+initShaderMesh(document.getElementById("contact-shader-mesh"), { opacity: 0.35 });
+initProcessReveal();
 initHeroAnime();
 initHeroThree();
 initHeroGeo();

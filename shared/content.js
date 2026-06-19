@@ -93,6 +93,18 @@ export const VERITY_CONTENT = {
       { value: "Swiftlet", label: "Innovation Platform" },
     ],
   },
+  process: {
+    label: "How We Work",
+    title: "From plan to production",
+    subtitle: "One accountable partner through every phase of your digital journey.",
+    steps: [
+      { num: "01", title: "Consult", icon: "chart", body: "Align on your business plan, scope hardware and software needs, and map the path forward." },
+      { num: "02", title: "Design", icon: "display", body: "Architecture, UX/UI, and integration plans tailored to your workspace and workflows." },
+      { num: "03", title: "Build", icon: "code", body: "Custom development, signage systems, and platform engineering with industry-standard stacks." },
+      { num: "04", title: "Deploy", icon: "layers", body: "Installation, configuration, and go-live for digital signage, smart office, and software." },
+      { num: "05", title: "Support", icon: "headset", body: "Local Thailand support by phone, email, and Line from a team you can reach." },
+    ],
+  },
   capabilities: {
     label: "Why Verity Tech",
     title: "One partner, end to end",

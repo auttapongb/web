@@ -37,6 +37,10 @@ Stack constraint: **static HTML/CSS/JS** — no React-only libraries without ada
 | Blur-in scroll reveals | designspells, React Bits | `styles.css` `.reveal` |
 | Button ripple | designspells | `app.js` `initButtonRipple()` |
 | Gradient border hover | Clarix glass cards | `styles.css` `.path-card`, `.service-card` |
+| Process timeline | figcomponents SaaS process | `#process`, `content.js` |
+| Contact shader mesh | shadergradient ambient | `#contact-shader-mesh` |
+| Form validation UX | figcomponents contact | `initFormEnhance()` |
+| Hero text shimmer | Aceternity / designspells | `.hero-line .accent` |
 | Unicorn Studio hook | unicorn.studio docs | Comment + optional `#unicorn-scene` container |
 
 ---
