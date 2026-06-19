@@ -140,8 +140,8 @@ function renderContent() {
 
   document.getElementById("path-title").textContent = gw.pathTitle;
   document.getElementById("path-sub").textContent = gw.pathSubtitle;
-  document.getElementById("path-grid").innerHTML = gw.roles.map(r => `
-    <a href="${r.href}" class="path-card" role="listitem" data-path="${r.id}">
+  document.getElementById("path-grid").innerHTML = gw.roles.map((r, i) => `
+    <a href="${r.href}" class="path-card reveal" role="listitem" data-path="${r.id}" style="--reveal-i:${i}">
       <span class="path-icon icon-motion">${icon(SERVICE_ICONS[r.icon] || "chart")}</span>
       <h3>${r.label}</h3>
       <p>${r.summary}</p>
@@ -245,7 +245,7 @@ function renderContent() {
   document.getElementById("dev-intro").textContent = dev.intro;
   document.getElementById("dev-grid").innerHTML = dev.features.map(f => `
     <article class="feature-card">
-      <span class="feature-icon">${icon(SERVICE_ICONS[f.icon] || "code")}</span>
+      <span class="feature-icon icon-motion">${icon(SERVICE_ICONS[f.icon] || "code")}</span>
       <h4>${f.name}</h4>
       <p>${f.description}</p>
     </article>`).join("");
@@ -255,7 +255,7 @@ function renderContent() {
   document.getElementById("data-intro").textContent = data.intro;
   document.getElementById("data-grid").innerHTML = data.features.map(f => `
     <article class="feature-card">
-      <span class="feature-icon">${icon(SERVICE_ICONS[f.icon] || "chart")}</span>
+      <span class="feature-icon icon-motion">${icon(SERVICE_ICONS[f.icon] || "chart")}</span>
       <h4>${f.name}</h4>
       <p>${f.description}</p>
     </article>`).join("");
@@ -316,8 +316,8 @@ function renderCompare() {
   ct.textContent = cmp.title;
   ct.classList.add("split-reveal");
   document.getElementById("compare-sub").textContent = cmp.subtitle;
-  document.getElementById("compare-grid").innerHTML = cmp.columns.map(col => `
-    <article class="compare-col compare-col--${col.id}">
+  document.getElementById("compare-grid").innerHTML = cmp.columns.map((col, i) => `
+    <article class="compare-col compare-col--${col.id} reveal" style="--reveal-i:${i}">
       <h3>${col.title}</h3>
       <ul>${col.highlights.map(h => `<li>${h}</li>`).join("")}</ul>
       <a href="${col.href}" class="btn btn-primary btn-sm">${col.cta}</a>
@@ -368,9 +368,10 @@ function renderCapabilities() {
   if (!cap) return;
   document.getElementById("cap-label").textContent = cap.label;
   document.getElementById("cap-title").textContent = cap.title;
+  document.getElementById("cap-title").classList.add("split-reveal");
   document.getElementById("cap-sub").textContent = cap.subtitle;
-  document.getElementById("bento-grid").innerHTML = cap.tiles.map(t => `
-    <article class="bento-tile${t.feature ? " bento-tile--feature" : ""}">
+  document.getElementById("bento-grid").innerHTML = cap.tiles.map((t, i) => `
+    <article class="bento-tile${t.feature ? " bento-tile--feature" : ""} reveal" style="--reveal-i:${i}">
       <span class="bento-icon icon-motion">${icon(t.icon)}</span>
       <div class="bento-body">
         <h3>${t.title}</h3>
@@ -533,6 +534,9 @@ function initContactForm() {
       toast?.classList.add("show");
       setTimeout(() => toast?.classList.remove("show"), 4000);
       form.reset();
+      form.querySelectorAll("input, textarea").forEach(f => {
+        f.classList.remove("field-valid", "field-invalid");
+      });
     };
 
     const data = Object.fromEntries(new FormData(form).entries());
@@ -622,7 +626,7 @@ function initIconMotion() {
       el.style.transition = "stroke-dashoffset 0.55s var(--ease-out-expo)";
     });
   });
-  document.querySelectorAll(".path-card, .service-card, .bento-tile, .process-step").forEach(card => {
+  document.querySelectorAll(".path-card, .service-card, .bento-tile, .process-step, .feature-card").forEach(card => {
     const draw = on => {
       card.querySelectorAll(`.icon-motion svg ${shapes}`).forEach(el => {
         el.style.strokeDashoffset = on ? "0" : el.dataset.strokeLen;

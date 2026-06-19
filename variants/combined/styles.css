@@ -813,6 +813,13 @@ html { scrollbar-color: var(--vt-burgundy-muted) transparent; }
   padding: 0; background: var(--glass-fill);
   border: 1px solid var(--border); border-radius: var(--radius-lg); max-width: 720px;
   overflow: hidden;
+  transition: transform var(--duration-normal) var(--ease-out-expo),
+              border-color var(--duration-fast), box-shadow var(--duration-normal);
+}
+.blog-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(201, 169, 98, 0.45);
+  box-shadow: 0 12px 32px rgba(139, 35, 50, 0.12);
 }
 .blog-img { width: 100%; height: auto; max-height: 280px; object-fit: cover; }
 .blog-card time, .blog-card h3, .blog-card p, .blog-meta {
@@ -1015,6 +1022,7 @@ html { scrollbar-color: var(--vt-burgundy-muted) transparent; }
 .reveal {
   opacity: 0; transform: translateY(28px); filter: blur(6px);
   transition: opacity 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo), filter 0.7s var(--ease-out-expo);
+  transition-delay: calc(var(--reveal-i, 0) * 75ms);
 }
 .reveal.visible { opacity: 1; transform: translateY(0); filter: blur(0); }
 @media (prefers-reduced-motion: reduce) {
@@ -1269,6 +1277,7 @@ main .section + .section::before {
   .card--media:hover .card-img,
   .product-card:hover img,
   .industry-visual:hover img,
+  .blog-card:hover { transform: none; box-shadow: none; }
   .blog-card:hover .blog-img { transform: none; }
   .showcase-hint { animation: none; opacity: 0.85; }
   .faq-a { transition: none; }
