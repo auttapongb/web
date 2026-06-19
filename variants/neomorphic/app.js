@@ -31,10 +31,13 @@ function observeHeroVisibility(onVisible) {
 function renderNav() {
   const nav = document.createElement("nav");
   nav.className = "site-nav";
+  const logoMark = isNeo
+    ? `<img src="../../assets/logo.svg" alt="Verity Tech home" width="44" height="44" class="nav-logo-dot">`
+    : `<img src="${M.logo}" alt="Verity Tech home" width="120" height="40" class="nav-logo-full">`;
   nav.innerHTML = `
     <div class="nav-inner container">
       <a href="../../" class="nav-logo">
-        <img src="${M.logo}" alt="Verity Tech home" width="120" height="40" class="nav-logo-full">
+        ${logoMark}
         <span class="logo-text"><span>VERITY</span> TECH</span>
       </a>
       <button class="nav-toggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="nav-menu">
@@ -57,10 +60,16 @@ function renderNav() {
 function renderFooter() {
   const f = document.createElement("footer");
   f.className = "site-footer";
+  const footerLogo = isNeo
+    ? `<img src="../../assets/logo.svg" alt="Verity Tech logo" width="48" height="48" class="footer-logo-dot">`
+    : `<img src="${M.logo}" alt="Verity Tech logo" width="120" height="40">`;
+  const themeLink = isNeo
+    ? `<a href="../combined/index.html">Cinematic theme (v3)</a>`
+    : `<a href="../neomorphic/index.html">Light theme (v4)</a>`;
   f.innerHTML = `
     <div class="container footer-inner">
       <div class="footer-brand">
-        <img src="${M.logo}" alt="Verity Tech logo" width="120" height="40">
+        ${footerLogo}
         <div>
           <strong>${C.company.name}</strong>
           <p>${C.company.role}</p>
@@ -72,6 +81,7 @@ function renderFooter() {
         <a href="#hardware">Hardware</a>
         <a href="#software">Software</a>
         <a href="#contact">Contact</a>
+        ${themeLink}
       </div>
       <p class="footer-copy">${C.footer.copyright}</p>
     </div>`;
@@ -1065,23 +1075,31 @@ async function initScroll() {
       gsap.ticker.lagSmoothing(0);
     }
 
-    // Cinematic hero parallax: drift hero content + visual as you scroll past
-    gsap.to(".hero-glass", {
-      scrollTrigger: { trigger: "#hero", start: "top top", end: "bottom top", scrub: 1 },
-      y: 120, opacity: 0.15, ease: "none",
-    });
-    gsap.to(".hero-visual", {
-      scrollTrigger: { trigger: "#hero", start: "top top", end: "bottom top", scrub: 1.4 },
-      y: -80, ease: "none",
-    });
-
-    // Scroll-driven 3D: feed hero scroll progress into the render loop
-    ScrollTrigger.create({
-      trigger: "#hero", start: "top top", end: "bottom top", scrub: true,
-      onUpdate: self => { heroScroll = self.progress; },
-    });
-
-    initHeroVideoScrub(ScrollTrigger);
+    // Cinematic hero parallax (dark v3 only)
+    if (!isNeo) {
+      gsap.to(".hero-glass", {
+        scrollTrigger: { trigger: "#hero", start: "top top", end: "bottom top", scrub: 1 },
+        y: 120, opacity: 0.15, ease: "none",
+      });
+      gsap.to(".hero-visual", {
+        scrollTrigger: { trigger: "#hero", start: "top top", end: "bottom top", scrub: 1.4 },
+        y: -80, ease: "none",
+      });
+      ScrollTrigger.create({
+        trigger: "#hero", start: "top top", end: "bottom top", scrub: true,
+        onUpdate: self => { heroScroll = self.progress; },
+      });
+      initHeroVideoScrub(ScrollTrigger);
+    } else {
+      gsap.to(".hero-neo-inner", {
+        scrollTrigger: { trigger: "#hero", start: "top top", end: "bottom top", scrub: 1.2 },
+        y: 48, opacity: 0.25, ease: "none",
+      });
+      gsap.to(".hero-logo-wrap", {
+        scrollTrigger: { trigger: "#hero", start: "top top", end: "bottom top", scrub: 1.5 },
+        y: -24, scale: 0.92, ease: "none",
+      });
+    }
 
     ScrollTrigger.refresh();
   } catch {
