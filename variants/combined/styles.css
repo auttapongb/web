@@ -900,6 +900,59 @@ html { scrollbar-color: var(--vt-burgundy-muted) transparent; }
   .bento-tile, .bento-icon, .faq-icon { transition: none; }
 }
 
+/* ── Look & feel polish II ── */
+
+/* Faint centered seam between consecutive sections for definition */
+main .section + .section::before {
+  content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: min(1100px, 88%); height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+/* Images come alive on hover (containers already clip overflow) */
+.card--media .card-img,
+.product-card img,
+.industry-visual img,
+.blog-img {
+  transition: transform 600ms var(--ease-out-expo);
+}
+.card--media:hover .card-img,
+.product-card:hover img,
+.industry-visual:hover img,
+.blog-card:hover .blog-img { transform: scale(1.05); }
+
+/* Title feedback on light-surface cards */
+.section-light .card:hover h3,
+.section-light .service-card:hover h3,
+.feature-card:hover h4 { color: var(--vt-burgundy); transition: color var(--duration-fast); }
+
+/* Motion-first icons: nudge on card hover (itshover-inspired) */
+.service-icon, .feature-icon, .path-icon {
+  transition: transform var(--duration-normal) var(--ease-out-expo);
+}
+.service-card:hover .service-icon,
+.path-card:hover .path-icon { transform: translateY(-3px) scale(1.06); }
+.feature-card:hover .feature-icon { transform: translateY(-3px) rotate(-6deg) scale(1.06); }
+
+/* Refined glass top-edge highlight on the hero panel */
+.hero-glass {
+  box-shadow: inset 0 1px 0 rgba(232, 200, 114, 0.12), 0 8px 40px rgba(0, 0, 0, 0.25);
+}
+
+/* Footer: brand left, links right, copyright on a divided baseline */
+@media (min-width: 768px) {
+  .footer-inner { grid-template-columns: 1fr auto; align-items: center; column-gap: 2rem; }
+  .footer-links { justify-self: end; }
+  .footer-copy { grid-column: 1 / -1; border-top: 1px solid var(--border); padding-top: 1.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card--media:hover .card-img,
+  .product-card:hover img,
+  .industry-visual:hover img,
+  .blog-card:hover .blog-img { transform: none; }
+}
+
 @media (max-width: 900px) {
   .hero-inner { grid-template-columns: 1fr; }
   .hero-visual { order: -1; max-height: 280px; }
