@@ -902,6 +902,36 @@ html { scrollbar-color: var(--vt-burgundy-muted) transparent; }
 
 /* ── Look & feel polish II ── */
 
+/* Active nav link (scroll-spy) */
+.nav-link[href] { position: relative; }
+.nav-link.active { color: var(--vt-gold-light); }
+.nav-link.active::after {
+  content: ""; position: absolute; left: 0.75rem; right: 0.75rem; bottom: 4px;
+  height: 2px; border-radius: 2px; background: var(--gradient-gold);
+}
+
+/* Back-to-top */
+.to-top {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 1500;
+  width: 46px; height: 46px; display: grid; place-items: center;
+  border-radius: 50%; cursor: pointer; color: var(--text-primary);
+  background: var(--gradient-burgundy); border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  opacity: 0; transform: translateY(12px) scale(0.9); pointer-events: none;
+  transition: opacity var(--duration-normal) var(--ease-out-expo),
+              transform var(--duration-normal) var(--ease-out-expo),
+              border-color var(--duration-fast);
+}
+.to-top.show { opacity: 1; transform: none; pointer-events: auto; }
+.to-top:hover { border-color: var(--vt-gold); transform: translateY(-2px); }
+
+/* Contact finale: subtle brand glow to anchor the closing CTA */
+#contact {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(139, 35, 50, 0.28), transparent 70%),
+    var(--bg-primary);
+}
+
 /* Faint centered seam between consecutive sections for definition */
 main .section + .section::before {
   content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%);

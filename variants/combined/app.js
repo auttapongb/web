@@ -946,6 +946,39 @@ function initFAQ() {
   }));
 }
 
+/* ── Scroll-spy: highlight the nav link for the section in view ── */
+function initScrollSpy() {
+  const links = [...document.querySelectorAll('.nav-menu > .nav-item > .nav-link[href^="#"]')];
+  const map = new Map();
+  links.forEach(l => {
+    const id = l.getAttribute("href");
+    const sec = id && id.length > 1 ? document.querySelector(id) : null;
+    if (sec) map.set(sec, l);
+  });
+  if (!map.size) return;
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      links.forEach(l => l.classList.remove("active"));
+      map.get(e.target)?.classList.add("active");
+    });
+  }, { rootMargin: "-45% 0px -50% 0px", threshold: 0 });
+  map.forEach((_, sec) => io.observe(sec));
+}
+
+/* ── Back-to-top control ── */
+function initBackToTop() {
+  const btn = document.getElementById("to-top");
+  if (!btn) return;
+  const toggle = () => btn.classList.toggle("show", window.scrollY > window.innerHeight);
+  window.addEventListener("scroll", toggle, { passive: true });
+  toggle();
+  btn.addEventListener("click", () => {
+    if (lenisInstance) lenisInstance.scrollTo(0);
+    else window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+  });
+}
+
 /* ── Scanline (V4) ── */
 function initScanline() {
   const scanline = document.querySelector(".scanline");
@@ -980,6 +1013,8 @@ initLoader();
 initCursorSpotlight();
 initBentoTilt();
 initFAQ();
+initScrollSpy();
+initBackToTop();
 initHeroAnime();
 initHeroThree();
 initHeroGeo();
