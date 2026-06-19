@@ -267,7 +267,7 @@ function renderContent() {
       ${[["Frontend", ts.frontend], ["Backend", ts.backend], ["Mobile", ts.mobile], ["Data", ts.data]].map(([label, list]) => `
         <div class="tech-stack-col">
           <h4>${label}</h4>
-          <ul>${list.map(t => `<li>${t}</li>`).join("")}</ul>
+          <ul class="tech-chips">${list.map(t => `<li class="tech-chip">${t}</li>`).join("")}</ul>
         </div>`).join("")}
     </div>`;
 
@@ -312,7 +312,9 @@ function renderCompare() {
   const cmp = C.compare;
   if (!cmp) return;
   document.getElementById("compare-label").textContent = cmp.label;
-  document.getElementById("compare-title").textContent = cmp.title;
+  const ct = document.getElementById("compare-title");
+  ct.textContent = cmp.title;
+  ct.classList.add("split-reveal");
   document.getElementById("compare-sub").textContent = cmp.subtitle;
   document.getElementById("compare-grid").innerHTML = cmp.columns.map(col => `
     <article class="compare-col compare-col--${col.id}">
@@ -327,7 +329,9 @@ function renderProcess() {
   const p = C.process;
   if (!p) return;
   document.getElementById("process-label").textContent = p.label;
-  document.getElementById("process-title").textContent = p.title;
+  const pt = document.getElementById("process-title");
+  pt.textContent = p.title;
+  pt.classList.add("split-reveal");
   document.getElementById("process-sub").textContent = p.subtitle;
   document.getElementById("process-steps").innerHTML = p.steps.map((s, i) => `
     <li class="process-step" style="--step-i:${i}">
@@ -389,12 +393,10 @@ function renderFAQ() {
     </details>`).join("");
 }
 
-function renderIndustryPanel(ind) {
+function renderIndustryPanel(ind, animate = false) {
   const panel = document.querySelector(".tab-panel");
   if (!panel || !ind) return;
-  panel.id = `panel-${ind.id}`;
-  panel.setAttribute("aria-labelledby", `tab-${ind.id}`);
-  panel.innerHTML = `
+  const html = `
     <div class="industry-panel-inner">
       <div class="industry-copy">
         <h3>${ind.title}</h3>
@@ -406,6 +408,15 @@ function renderIndustryPanel(ind) {
         <img src="${resolveMedia(ind.image)}" alt="${ind.title}" loading="lazy">
       </figure>
     </div>`;
+  const apply = () => {
+    panel.id = `panel-${ind.id}`;
+    panel.setAttribute("aria-labelledby", `tab-${ind.id}`);
+    panel.innerHTML = html;
+  };
+  if (animate && !reduced) {
+    panel.classList.add("is-changing");
+    setTimeout(() => { apply(); panel.classList.remove("is-changing"); }, 200);
+  } else apply();
 }
 
 function initIndustryTabs() {
@@ -422,7 +433,20 @@ function initIndustryTabs() {
       t.classList.toggle("active", on);
       t.setAttribute("aria-selected", String(on));
     });
-    renderIndustryPanel(ind);
+    renderIndustryPanel(ind, true);
+  });
+  tabs.addEventListener("keydown", e => {
+    const btns = [...tabs.querySelectorAll(".tab-btn")];
+    const idx = btns.indexOf(document.activeElement);
+    if (idx < 0) return;
+    let next = idx;
+    if (e.key === "ArrowRight") { next = (idx + 1) % btns.length; e.preventDefault(); }
+    else if (e.key === "ArrowLeft") { next = (idx - 1 + btns.length) % btns.length; e.preventDefault(); }
+    else if (e.key === "Home") { next = 0; e.preventDefault(); }
+    else if (e.key === "End") { next = btns.length - 1; e.preventDefault(); }
+    else return;
+    btns[next].focus();
+    btns[next].click();
   });
 }
 
@@ -438,8 +462,35 @@ function initPathCards() {
 function initLogoCarousel() {
   if (reduced) return;
   const track = document.getElementById("logo-carousel");
+  const wrap = track?.closest(".logo-carousel");
   if (!track) return;
   track.style.setProperty("--carousel-duration", `${C.about.partners.carousel.length * 4}s`);
+  wrap?.addEventListener("mouseenter", () => { track.style.animationPlayState = "paused"; });
+  wrap?.addEventListener("mouseleave", () => { track.style.animationPlayState = "running"; });
+  wrap?.addEventListener("focusin", () => { track.style.animationPlayState = "paused"; });
+  wrap?.addEventListener("focusout", () => { track.style.animationPlayState = "running"; });
+}
+
+/* ── Sticky mobile CTA (figcomponents / SaaS landing) ── */
+function initMobileCta() {
+  const bar = document.getElementById("mobile-cta");
+  const contact = document.getElementById("contact");
+  if (!bar) return;
+  let contactVisible = false;
+  const update = () => {
+    const pastHero = window.scrollY > window.innerHeight * 0.45;
+    bar.hidden = !pastHero || contactVisible;
+    bar.classList.toggle("show", pastHero && !contactVisible);
+  };
+  window.addEventListener("scroll", update, { passive: true });
+  if (contact) {
+    const io = new IntersectionObserver(([e]) => {
+      contactVisible = e.isIntersecting;
+      update();
+    }, { threshold: 0.15 });
+    io.observe(contact);
+  }
+  update();
 }
 
 function initVisixGallery() {
@@ -1158,6 +1209,7 @@ initVisixGallery();
 initIndustryTabs();
 initPathCards();
 initLogoCarousel();
+initMobileCta();
 initScrollProgress();
 initMagneticButtons();
 initCounters();
