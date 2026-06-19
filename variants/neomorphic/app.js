@@ -165,8 +165,8 @@ function renderContent() {
   document.getElementById("logo-carousel").innerHTML = logos.map(name => `
     <span class="logo-chip">${name}</span>`).join("");
 
-  document.getElementById("service-grid").innerHTML = C.services.map(s => `
-    <a href="${s.href}" class="service-card spotlight-card reveal">
+  document.getElementById("service-grid").innerHTML = C.services.map((s, i) => `
+    <a href="${s.href}" class="service-card spotlight-card reveal${isNeo ? " neo-service-row" : ""}"${isNeo ? ` style="--reveal-i:${i}"` : ""}>
       <div class="service-num">${s.num}</div>
       <div class="service-icon icon-motion">${icon(SERVICE_ICONS[s.icon])}</div>
       <h3>${s.name}</h3>
