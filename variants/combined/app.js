@@ -1,6 +1,7 @@
 import { VERITY_CONTENT as C } from "../../shared/content.js";
 import { MEDIA as M } from "../../shared/media.js";
 import { loadThree, loadOrbitControls, BRAND_3D, PARTICLE_PALETTE } from "../../shared/three-core.js";
+import { initShaderMesh } from "../../shared/shader-mesh.js";
 import { icon } from "../../shared/icons.js";
 import { animate, stagger } from "https://cdn.jsdelivr.net/npm/animejs/+esm";
 
@@ -979,6 +980,51 @@ function initBackToTop() {
   });
 }
 
+/* ── Kinetic marquee (getlayers / motionsites) ── */
+function initMarquee() {
+  const track = document.getElementById("marquee-track");
+  if (!track) return;
+  const words = [
+    C.company.taglineBrand,
+    "Digital Signage",
+    "Smart Office & Home",
+    "Custom Software",
+    "Data Analytics",
+    ...C.about.partners.carousel,
+  ];
+  const chunk = words.map(w => `<span class="marquee-item">${w}</span><span class="marquee-dot">◆</span>`).join("");
+  track.innerHTML = chunk + chunk;
+  if (reduced) track.style.animationPlayState = "paused";
+}
+
+/* ── Hero scroll cue (motionsites / Clarix) ── */
+function initScrollCue() {
+  const cue = document.querySelector(".hero-scroll-cue");
+  const hero = document.getElementById("hero");
+  if (!cue || !hero) return;
+  const hide = () => cue.classList.toggle("hidden", window.scrollY > window.innerHeight * 0.12);
+  window.addEventListener("scroll", hide, { passive: true });
+  hide();
+}
+
+/* ── Button ripple (designspells) ── */
+function initButtonRipple() {
+  if (reduced) return;
+  document.querySelectorAll(".btn-primary, .btn-ghost").forEach(btn => {
+    btn.classList.add("btn-ripple");
+    btn.addEventListener("pointerdown", e => {
+      if (e.button !== 0) return;
+      const r = btn.getBoundingClientRect();
+      const rip = document.createElement("span");
+      rip.className = "ripple";
+      rip.style.left = `${e.clientX - r.left}px`;
+      rip.style.top = `${e.clientY - r.top}px`;
+      btn.appendChild(rip);
+      rip.addEventListener("animationend", () => rip.remove(), { once: true });
+    });
+  });
+}
+
 /* ── Scanline (V4) ── */
 function initScanline() {
   const scanline = document.querySelector(".scanline");
@@ -1015,6 +1061,10 @@ initBentoTilt();
 initFAQ();
 initScrollSpy();
 initBackToTop();
+initMarquee();
+initScrollCue();
+initButtonRipple();
+initShaderMesh(document.getElementById("shader-mesh"), { opacity: 0.5 });
 initHeroAnime();
 initHeroThree();
 initHeroGeo();
