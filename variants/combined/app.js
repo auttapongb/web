@@ -141,7 +141,7 @@ function renderContent() {
   document.getElementById("path-title").textContent = gw.pathTitle;
   document.getElementById("path-sub").textContent = gw.pathSubtitle;
   document.getElementById("path-grid").innerHTML = gw.roles.map((r, i) => `
-    <a href="${r.href}" class="path-card reveal" role="listitem" data-path="${r.id}" style="--reveal-i:${i}">
+    <a href="${r.href}" class="path-card spotlight-card reveal" role="listitem" data-path="${r.id}" style="--reveal-i:${i}">
       <span class="path-icon icon-motion">${icon(SERVICE_ICONS[r.icon] || "chart")}</span>
       <h3>${r.label}</h3>
       <p>${r.summary}</p>
@@ -162,7 +162,7 @@ function renderContent() {
     <span class="logo-chip">${name}</span>`).join("");
 
   document.getElementById("service-grid").innerHTML = C.services.map(s => `
-    <a href="${s.href}" class="service-card reveal">
+    <a href="${s.href}" class="service-card spotlight-card reveal">
       <div class="service-num">${s.num}</div>
       <div class="service-icon icon-motion">${icon(SERVICE_ICONS[s.icon])}</div>
       <h3>${s.name}</h3>
@@ -317,7 +317,7 @@ function renderCompare() {
   ct.classList.add("split-reveal");
   document.getElementById("compare-sub").textContent = cmp.subtitle;
   document.getElementById("compare-grid").innerHTML = cmp.columns.map((col, i) => `
-    <article class="compare-col compare-col--${col.id} reveal" style="--reveal-i:${i}">
+    <article class="compare-col compare-col--${col.id} spotlight-card reveal" style="--reveal-i:${i}">
       <h3>${col.title}</h3>
       <ul>${col.highlights.map(h => `<li>${h}</li>`).join("")}</ul>
       <a href="${col.href}" class="btn btn-primary btn-sm">${col.cta}</a>
@@ -371,7 +371,7 @@ function renderCapabilities() {
   document.getElementById("cap-title").classList.add("split-reveal");
   document.getElementById("cap-sub").textContent = cap.subtitle;
   document.getElementById("bento-grid").innerHTML = cap.tiles.map((t, i) => `
-    <article class="bento-tile${t.feature ? " bento-tile--feature" : ""} reveal" style="--reveal-i:${i}">
+    <article class="bento-tile${t.feature ? " bento-tile--feature" : ""} spotlight-card reveal" style="--reveal-i:${i}">
       <span class="bento-icon icon-motion">${icon(t.icon)}</span>
       <div class="bento-body">
         <h3>${t.title}</h3>
@@ -613,7 +613,21 @@ function initProcessReveal() {
   steps.forEach(s => io.observe(s));
 }
 
-/* ── itshover-style SVG stroke draw on card hover ── */
+/* ── Card spotlight hover (Aceternity / Cruip / designspells) ── */
+function initCardSpotlight() {
+  if (reduced) return;
+  const cards = document.querySelectorAll(".spotlight-card");
+  if (!cards.length) return;
+  document.addEventListener("pointermove", e => {
+    cards.forEach(card => {
+      const r = card.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return;
+      card.style.setProperty("--mouse-x", `${e.clientX - r.left}px`);
+      card.style.setProperty("--mouse-y", `${e.clientY - r.top}px`);
+    });
+  }, { passive: true });
+}
+
 function initIconMotion() {
   if (reduced) return;
   const shapes = "path, polyline, line, circle, rect";
@@ -1279,6 +1293,7 @@ initShaderMesh(document.getElementById("shader-mesh"), { opacity: 0.5 });
 initShaderMesh(document.getElementById("contact-shader-mesh"), { opacity: 0.35 });
 initProcessReveal();
 initIconMotion();
+initCardSpotlight();
 initSplitReveal();
 initUnicornScene();
 initHeroAnime();

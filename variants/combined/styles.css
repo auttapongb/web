@@ -1025,8 +1025,23 @@ html { scrollbar-color: var(--vt-burgundy-muted) transparent; }
   transition-delay: calc(var(--reveal-i, 0) * 75ms);
 }
 .reveal.visible { opacity: 1; transform: translateY(0); filter: blur(0); }
+
+/* Progressive enhancement: native scroll-driven reveals (Spell UI / Chrome 2024+) */
+@supports (animation-timeline: view()) {
+  .reveal {
+    transition: none;
+    animation: reveal-in linear both;
+    animation-timeline: view();
+    animation-range: entry 5% entry 42%;
+    animation-delay: calc(var(--reveal-i, 0) * 75ms);
+  }
+  @keyframes reveal-in {
+    from { opacity: 0; transform: translateY(28px); filter: blur(6px); }
+    to { opacity: 1; transform: none; filter: none; }
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  .reveal { opacity: 1; transform: none; filter: none; transition: none; }
+  .reveal { opacity: 1; transform: none; filter: none; transition: none; animation: none; }
   .hero-scroll-cue-icon { animation: none; }
   .marquee-track { animation: none; flex-wrap: wrap; width: 100%; justify-content: center; }
   .process-step { opacity: 1; transform: none; transition: none; }
@@ -1074,6 +1089,36 @@ html { scrollbar-color: var(--vt-burgundy-muted) transparent; }
   opacity: 0; transition: opacity var(--duration-normal) var(--ease-out-expo);
 }
 .hero-spotlight.active { opacity: 1; }
+
+/* Film grain — shadergradient + MotionSites premium texture */
+.hero-grain {
+  position: absolute; inset: 0; z-index: 4; pointer-events: none;
+  opacity: 0.04; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+/* Card spotlight — mouse-local radial glow (Aceternity / Cruip) */
+.spotlight-card { position: relative; overflow: hidden; }
+.spotlight-card::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  opacity: 0; transition: opacity 220ms var(--ease-out-expo);
+  background: radial-gradient(
+    240px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(232, 200, 114, 0.14),
+    transparent 65%
+  );
+}
+.section-light .spotlight-card::after {
+  background: radial-gradient(
+    240px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(139, 35, 50, 0.08),
+    transparent 65%
+  );
+}
+.spotlight-card:hover::after,
+.spotlight-card:focus-within::after { opacity: 1; }
+.spotlight-card > * { position: relative; z-index: 1; }
 
 /* ── Stat band (truthful count-up) ── */
 .stat-band {
@@ -1283,6 +1328,8 @@ main .section + .section::before {
   .faq-a { transition: none; }
   .process-steps::after { transition: none; }
   .visix-main img { transition: none; }
+  .hero-grain { display: none; }
+  .spotlight-card::after { display: none; }
 }
 
 @media (max-width: 900px) {
