@@ -6,12 +6,10 @@ BASE="http://localhost:${PORT}"
 
 URLS=(
   "/"
+  "/variants/neomorphic/"
+  "/variants/neomorphic/index.html"
   "/variants/combined/"
-  "/variants/v1-nebula/"
-  "/variants/v2-kinetic/"
-  "/variants/v3-glass/"
-  "/variants/v4-grid/"
-  "/variants/v5-swiftlet/"
+  "/variants/combined/index.html"
 )
 
 PASS=0

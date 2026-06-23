@@ -1,14 +1,11 @@
 import { VERITY_CONTENT as C } from "../../shared/content.js";
 import { MEDIA as M } from "../../shared/media.js";
-import { loadThree, loadOrbitControls, BRAND_3D, PARTICLE_PALETTE } from "../../shared/three-core.js";
 import { initShaderMesh } from "../../shared/shader-mesh.js";
 import { icon } from "../../shared/icons.js";
-import { animate, stagger } from "https://cdn.jsdelivr.net/npm/animejs/+esm";
 
 const SERVICE_ICONS = { chart: "chart", code: "code", home: "home", display: "display" };
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const isNeo = document.body.classList.contains("theme-neomorphic");
-let heroScroll = 0;
+const isNeo = true;
 
 function mediaPath(key) {
   const parts = key.split(".");
@@ -127,8 +124,7 @@ function initNav() {
       if (!target) return;
       e.preventDefault();
       closeMenu();
-      if (lenisInstance) lenisInstance.scrollTo(target, { offset: -72 });
-      else target.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+      target.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
     });
   });
 }
@@ -185,20 +181,27 @@ function renderContent() {
 
   document.getElementById("hw-title").textContent = C.hardware.title;
   document.getElementById("hw-sub").textContent = C.hardware.subtitle;
-  document.getElementById("hw-grid").innerHTML = C.hardware.categories.map(cat => `
-    <article class="card card--media reveal">
-      ${cat.image ? `<img class="card-img" src="${mediaPath(`hardware.${cat.image}`)}" alt="${cat.name}" loading="lazy">` : ""}
-      <div class="card-body">
-        <h3>${cat.name}</h3>
+  document.getElementById("hw-accordion").innerHTML = C.hardware.categories.map((cat, i) => `
+    <details class="neo-hw-panel neo-surface spotlight-card"${i === 0 ? " open" : ""}>
+      <summary class="neo-hw-summary">
+        ${cat.image ? `<img class="neo-hw-thumb" src="${mediaPath(`hardware.${cat.image}`)}" alt="" loading="lazy">` : ""}
+        <span class="neo-hw-summary-text">
+          <strong>${cat.name}</strong>
+          <span>${cat.description}</span>
+        </span>
+        <span class="neo-hw-chevron" aria-hidden="true">${icon("plus")}</span>
+      </summary>
+      <div class="neo-hw-body">
+        ${cat.image ? `<img class="neo-hw-hero-img" src="${mediaPath(`hardware.${cat.image}`)}" alt="${cat.name}" loading="lazy">` : ""}
         <p>${cat.description}</p>
         ${cat.subcategories ? `<div class="subcat-row">${cat.subcategories.map(sc => `
           <figure class="subcat">
             <img src="${mediaPath(`hardware.${sc.image}`)}" alt="${sc.name}" loading="lazy">
             <figcaption>${sc.name}</figcaption>
           </figure>`).join("")}</div>` : ""}
-        <ul>${cat.items.map(i => `<li>${i}</li>`).join("")}</ul>
+        <ul class="neo-hw-list">${cat.items.map(item => `<li>${item}</li>`).join("")}</ul>
       </div>
-    </article>`).join("");
+    </details>`).join("");
 
   const hwProducts = C.hardware.categories.flatMap(c => c.products || []);
   document.getElementById("hw-products").innerHTML = hwProducts.length ? `
@@ -729,317 +732,28 @@ function initUnicornScene() {
   document.head.appendChild(script);
 }
 
-/* ── anime.js hero (MotionSites-style stagger) ── */
-function initHeroAnime() {
-  if (reduced) return;
-
-  try {
-  animate(".hero-brand-tag", {
-    opacity: [0, 1], translateY: [16, 0], duration: 700, ease: "outExpo", delay: 200,
-  });
-
-  animate("[data-animate='line']", {
-    opacity: [0, 1], translateY: [48, 0], duration: 900, ease: "outExpo",
-    delay: stagger(120, { start: isNeo ? 600 : 400 }),
-  });
-
-  animate("[data-animate='fade']", {
-    opacity: [0, 1], translateY: [24, 0], duration: 700, ease: "outExpo",
-    delay: stagger(100, { start: isNeo ? 1000 : 900 }),
-  });
-
-  if (!isNeo) {
-  animate(".kinetic-bar", {
-    scaleX: [0, 1], duration: 1200, ease: "outExpo", delay: 1100,
-  });
-  }
-  } catch (err) {
-    console.warn("Hero animation fallback:", err);
-  }
-}
-
-/* ── Three.js hero (threejs.org patterns: grid + particles + wireframes) ── */
-async function initHeroThree() {
-  const canvas = document.getElementById("hero-canvas");
-  if (!canvas || reduced) { if (canvas) canvas.style.display = "none"; return; }
-
-  try {
-    const THREE = await loadThree();
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(BRAND_3D.bg, 0.022);
-
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
-    camera.position.set(0, 8, 24);
-
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-    const grid = new THREE.GridHelper(70, 35, BRAND_3D.gold, BRAND_3D.burgundy);
-    grid.material.opacity = 0.28;
-    grid.material.transparent = true;
-    scene.add(grid);
-
-    const count = 1800;
-    const positions = new Float32Array(count * 3);
-    const colors = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 90;
-      positions[i * 3 + 1] = Math.random() * 35 + 2;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 70;
-      const c = PARTICLE_PALETTE[Math.floor(Math.random() * PARTICLE_PALETTE.length)];
-      colors[i * 3] = c[0];
-      colors[i * 3 + 1] = c[1];
-      colors[i * 3 + 2] = c[2];
-    }
-    const pGeo = new THREE.BufferGeometry();
-    pGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    pGeo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-    const points = new THREE.Points(pGeo, new THREE.PointsMaterial({
-      size: 0.22, vertexColors: true, transparent: true, opacity: 0.75,
-    }));
-    scene.add(points);
-
-    const wireGroup = new THREE.Group();
-    [[4, 0, -6], [-5, 3, 4], [3, 6, 8]].forEach(([x, y, z], i) => {
-      const size = 1.8 + i * 0.6;
-      const geo = new THREE.IcosahedronGeometry(size, i === 0 ? 1 : 0);
-      const mat = new THREE.MeshBasicMaterial({
-        color: i === 1 ? BRAND_3D.gold : BRAND_3D.burgundy,
-        wireframe: true, transparent: true, opacity: 0.55 + i * 0.1,
-      });
-      const mesh = new THREE.Mesh(geo, mat);
-      mesh.position.set(x, y, z);
-      wireGroup.add(mesh);
-    });
-    scene.add(wireGroup);
-
-    const isHeroVisible = observeHeroVisibility();
-    let mx = 0, my = 0;
-    window.addEventListener("mousemove", e => {
-      mx = (e.clientX / window.innerWidth - 0.5) * 4;
-      my = (e.clientY / window.innerHeight - 0.5) * 2.5;
-    }, { passive: true });
-
-    const start = performance.now();
-    renderer.setAnimationLoop(now => {
-      if (!isHeroVisible()) return;
-      const t = (now - start) * 0.001;
-      grid.rotation.y = t * 0.12;
-      points.rotation.y = t * 0.04;
-      wireGroup.rotation.y = t * 0.18;
-      wireGroup.children.forEach((m, i) => {
-        m.rotation.x = t * (0.3 + i * 0.1);
-        m.rotation.z = t * (0.2 + i * 0.05);
-      });
-      const targetZ = 24 + heroScroll * 26;
-      const targetY = 8 + heroScroll * 12;
-      camera.position.x += (mx - camera.position.x) * 0.03;
-      camera.position.y += (targetY - my - camera.position.y) * 0.03;
-      camera.position.z += (targetZ - camera.position.z) * 0.05;
-      camera.lookAt(0, 4, 0);
-      renderer.render(scene, camera);
-    });
-
-    window.addEventListener("resize", () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  } catch {
-    canvas.style.display = "none";
-  }
-}
-
-/* ── Classic threejs.org icosahedron (Creating a Scene) ── */
-async function initHeroGeo() {
-  const canvas = document.getElementById("hero-geo-canvas");
-  if (!canvas || reduced) { if (canvas) canvas.style.display = "none"; return; }
-
-  try {
-    const THREE = await loadThree();
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
-    camera.position.z = 4;
-
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-    const geometry = new THREE.IcosahedronGeometry(1.2, 1);
-    const wire = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
-      color: BRAND_3D.gold, wireframe: true, transparent: true, opacity: 0.9,
-    }));
-    const solid = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({
-      color: BRAND_3D.burgundy, metalness: 0.35, roughness: 0.45,
-      transparent: true, opacity: 0.35,
-    }));
-    scene.add(solid);
-    scene.add(wire);
-
-    const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(1.85, 0.015, 8, 64),
-      new THREE.MeshBasicMaterial({ color: BRAND_3D.goldLight, transparent: true, opacity: 0.5 }),
-    );
-    ring.rotation.x = Math.PI / 2.5;
-    scene.add(ring);
-
-    scene.add(new THREE.AmbientLight(BRAND_3D.gold, 0.4));
-    const dir = new THREE.DirectionalLight(BRAND_3D.goldLight, 1.1);
-    dir.position.set(3, 4, 5);
-    scene.add(dir);
-
-    const isHeroVisible = observeHeroVisibility();
-    const resize = () => {
-      const w = canvas.clientWidth || 380;
-      const h = canvas.clientHeight || 380;
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    renderer.setAnimationLoop(time => {
-      if (!isHeroVisible()) return;
-      wire.rotation.x = time * 0.0004;
-      wire.rotation.y = time * 0.0007;
-      solid.rotation.copy(wire.rotation);
-      ring.rotation.z = time * 0.0003;
-      renderer.render(scene, camera);
-    });
-  } catch {
-    canvas.style.display = "none";
-  }
-}
-
-/* ── Three.js product showcase + OrbitControls (threejs.org examples) ── */
-async function initShowcase3D() {
-  const canvas = document.getElementById("showcase-canvas");
-  const section = document.getElementById("showcase-3d");
-  if (!canvas || !section || reduced) { if (canvas) canvas.style.display = "none"; return; }
-
-  const textures = [
-    M.hardware.signageMockup,
-    M.hardware.videowall,
-    M.hardware.lcd,
-    M.software.phone1,
-    M.software.phone2,
-    M.hardware.smartOffice,
-  ];
-
-  try {
-    const THREE = await loadThree();
-    const { OrbitControls } = await loadOrbitControls();
-
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(BRAND_3D.bg, 0.04);
-    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
-    camera.position.set(0, 1, 9);
-
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-    const loader = new THREE.TextureLoader();
-    const group = new THREE.Group();
-    scene.add(group);
-
-    textures.forEach((url, i) => {
-      const tex = loader.load(url);
-      tex.colorSpace = THREE.SRGBColorSpace;
-      const frame = new THREE.Mesh(
-        new THREE.BoxGeometry(2.6, 1.85, 0.06),
-        new THREE.MeshStandardMaterial({ color: BRAND_3D.burgundyDeep, metalness: 0.4, roughness: 0.5 }),
-      );
-      const screen = new THREE.Mesh(
-        new THREE.PlaneGeometry(2.4, 1.65),
-        new THREE.MeshStandardMaterial({ map: tex, metalness: 0.1, roughness: 0.7 }),
-      );
-      screen.position.z = 0.04;
-      const panel = new THREE.Group();
-      panel.add(frame);
-      panel.add(screen);
-      const angle = (i / textures.length) * Math.PI * 2;
-      panel.position.set(Math.cos(angle) * 3.5, Math.sin(i * 0.6) * 0.3, Math.sin(angle) * 3.5);
-      panel.rotation.y = -angle + Math.PI / 2;
-      group.add(panel);
-    });
-
-    const knot = new THREE.Mesh(
-      new THREE.TorusKnotGeometry(0.45, 0.12, 100, 16),
-      new THREE.MeshStandardMaterial({ color: BRAND_3D.gold, metalness: 0.6, roughness: 0.3 }),
-    );
-    knot.position.y = -0.5;
-    group.add(knot);
-
-    scene.add(new THREE.AmbientLight(BRAND_3D.gold, 0.35));
-    const key = new THREE.DirectionalLight(BRAND_3D.goldLight, 1.2);
-    key.position.set(5, 8, 6);
-    scene.add(key);
-
-    const controls = new OrbitControls(camera, canvas);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.06;
-    controls.enablePan = false;
-    controls.minDistance = 5;
-    controls.maxDistance = 14;
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.6;
-
-    const wrap = canvas.closest(".showcase-canvas-wrap");
-    const dismissHint = () => wrap?.classList.add("hint-dismissed");
-    canvas.addEventListener("pointerdown", dismissHint, { once: true });
-    controls.addEventListener("start", dismissHint);
-
-    let visible = false;
-    const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { threshold: 0.1 });
-    io.observe(section);
-
-    const resize = () => {
-      const w = canvas.clientWidth;
-      const h = canvas.clientHeight || 420;
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    renderer.setAnimationLoop(() => {
-      if (!visible) return;
-      controls.update();
-      knot.rotation.x += 0.008;
-      knot.rotation.y += 0.012;
-      renderer.render(scene, camera);
-    });
-  } catch {
-    canvas.style.display = "none";
-  }
-}
-
-/* ── Hero video scroll-scrub (CinePage / v3.1) ── */
-function initHeroVideoScrub(ScrollTrigger) {
-  const video = document.querySelector(".hero-video");
+/* ── Neo hero entrance (CSS-only — no anime.js) ── */
+function initNeoHeroReveal() {
   const hero = document.getElementById("hero");
-  if (!video || !hero || reduced) return;
-
-  const bind = () => {
-    const dur = video.duration;
-    if (!dur || !Number.isFinite(dur)) return;
-    ScrollTrigger.create({
-      trigger: hero,
-      start: "top top",
-      end: "bottom top",
-      scrub: 0.6,
-      onUpdate: self => {
-        video.currentTime = Math.min(dur - 0.04, self.progress * dur);
-      },
-    });
-  };
-
-  if (video.readyState >= 1) bind();
-  else video.addEventListener("loadedmetadata", bind, { once: true });
-  video.addEventListener("error", () => { video.style.display = "none"; }, { once: true });
+  if (!hero) return;
+  if (reduced) {
+    hero.classList.add("hero-animated");
+    hero.querySelectorAll("[data-animate]").forEach(el => el.classList.add("visible"));
+    return;
+  }
+  requestAnimationFrame(() => hero.classList.add("hero-animated"));
 }
 
-/* ── Reveal on scroll (IntersectionObserver — robust with Lenis) ── */
+/* ── Hardware accordion: single-open panels ── */
+function initHardwareAccordion() {
+  const panels = document.querySelectorAll(".neo-hw-panel");
+  panels.forEach(d => d.addEventListener("toggle", () => {
+    if (d.open) panels.forEach(o => { if (o !== d) o.open = false; });
+  }));
+}
+
+
+/* ── Reveal on scroll ── */
 function initReveals() {
   const reveals = document.querySelectorAll(".reveal");
   if (reduced) {
@@ -1052,75 +766,6 @@ function initReveals() {
     });
   }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
   reveals.forEach(el => io.observe(el));
-}
-
-/* ── GSAP cinematic hero scrub + scroll-driven 3D (2026 trend) ── */
-async function initScroll() {
-  initReveals();
-  if (reduced) return;
-
-  try {
-    const [gsapMod, stMod] = await Promise.all([
-      import("https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js"),
-      import("https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js"),
-    ]);
-    const gsap = gsapMod.default || gsapMod.gsap;
-    const ScrollTrigger = stMod.ScrollTrigger || stMod.default;
-    gsap.registerPlugin(ScrollTrigger);
-
-    // Sync Lenis smooth scroll with ScrollTrigger (gsap.ticker fix)
-    if (lenisInstance) {
-      lenisInstance.on("scroll", ScrollTrigger.update);
-      gsap.ticker.add(t => lenisInstance.raf(t * 1000));
-      gsap.ticker.lagSmoothing(0);
-    }
-
-    // Cinematic hero parallax (dark v3 only)
-    if (!isNeo) {
-      gsap.to(".hero-glass", {
-        scrollTrigger: { trigger: "#hero", start: "top top", end: "bottom top", scrub: 1 },
-        y: 120, opacity: 0.15, ease: "none",
-      });
-      gsap.to(".hero-visual", {
-        scrollTrigger: { trigger: "#hero", start: "top top", end: "bottom top", scrub: 1.4 },
-        y: -80, ease: "none",
-      });
-      ScrollTrigger.create({
-        trigger: "#hero", start: "top top", end: "bottom top", scrub: true,
-        onUpdate: self => { heroScroll = self.progress; },
-      });
-      initHeroVideoScrub(ScrollTrigger);
-    } else {
-      gsap.to(".hero-neo-inner", {
-        scrollTrigger: { trigger: "#hero", start: "top top", end: "bottom top", scrub: 1.2 },
-        y: 48, opacity: 0.25, ease: "none",
-      });
-      gsap.to(".hero-logo-wrap", {
-        scrollTrigger: { trigger: "#hero", start: "top top", end: "bottom top", scrub: 1.5 },
-        y: -24, scale: 0.92, ease: "none",
-      });
-    }
-
-    ScrollTrigger.refresh();
-  } catch {
-    /* reveals already handled by IntersectionObserver */
-  }
-}
-
-/* ── Lenis smooth scroll (2026 immersive stack) ── */
-let lenisInstance = null;
-async function initSmoothScroll() {
-  if (reduced) return null;
-  try {
-    const { default: Lenis } = await import("https://cdn.jsdelivr.net/npm/lenis@1.1.18/+esm");
-    const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
-    lenisInstance = lenis;
-    function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
-    requestAnimationFrame(raf);
-    return lenis;
-  } catch {
-    return null;
-  }
 }
 
 /* ── Scroll progress bar ── */
@@ -1270,8 +915,7 @@ function initBackToTop() {
   window.addEventListener("scroll", toggle, { passive: true });
   toggle();
   btn.addEventListener("click", () => {
-    if (lenisInstance) lenisInstance.scrollTo(0);
-    else window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+    window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
   });
 }
 
@@ -1335,47 +979,33 @@ function initScanline() {
   })();
 }
 
-/* ── Boot ── */
+/* ── Boot (lean — no Three.js, GSAP, Lenis, or anime.js) ── */
 document.body.insertBefore(renderNav(), document.body.firstChild);
 renderContent();
 document.getElementById("site-footer").replaceWith(renderFooter());
 initNav();
 initContactForm();
 initFormEnhance();
-initHeroVideo();
 initVisixGallery();
-if (!isNeo) initIndustryTabs();
 initPathCards();
 initLogoCarousel();
 initMobileCta();
 initScrollProgress();
-initMagneticButtons();
 initCounters();
 initStatCounters();
 initLoader();
-if (!isNeo) initCursorSpotlight();
 initBentoTilt();
 initFAQ();
+initHardwareAccordion();
 initScrollSpy();
 initBackToTop();
-if (!isNeo) initMarquee();
 initScrollCue();
 initButtonRipple();
-const meshOpts = isNeo ? { opacity: 0.05, theme: "light" } : { opacity: 0.5 };
-const contactMeshOpts = isNeo ? { opacity: 0.04, theme: "light" } : { opacity: 0.35 };
-initShaderMesh(document.getElementById("shader-mesh"), meshOpts);
-initShaderMesh(document.getElementById("contact-shader-mesh"), contactMeshOpts);
+initShaderMesh(document.getElementById("shader-mesh"), { opacity: 0.05, theme: "light" });
+initShaderMesh(document.getElementById("contact-shader-mesh"), { opacity: 0.04, theme: "light" });
 initProcessReveal();
 initIconMotion();
 initCardSpotlight();
 initSplitReveal();
-if (!isNeo) initUnicornScene();
-initHeroAnime();
-if (!isNeo) {
-  initHeroThree();
-  initHeroGeo();
-  initShowcase3D();
-  initScanline();
-}
-// Smooth scroll must init before ScrollTrigger sync
-initSmoothScroll().then(initScroll);
+initReveals();
+initNeoHeroReveal();
