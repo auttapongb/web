@@ -338,7 +338,7 @@ function renderCompare() {
       <h3>${col.title}</h3>
       <ul>${col.highlights.map(h => `<li>${h}</li>`).join("")}</ul>
       <a href="${col.href}" class="btn btn-primary btn-sm">${col.cta}</a>
-    </article>`).join("");
+    </article>`).join("") + `<span class="compare-vs" aria-hidden="true">vs</span>`;
 }
 
 /* ── Process timeline (figcomponents / motionsites) ── */
@@ -744,6 +744,21 @@ function initNeoHeroReveal() {
   requestAnimationFrame(() => hero.classList.add("hero-animated"));
 }
 
+/* ── Headline mouse-through spotlight (everydaywithcaptain html-slides) ── */
+function initHeadlineSpotlight() {
+  if (reduced || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+  const lines = document.querySelectorAll(".hero-neo-title .line:not(.accent)");
+  if (!lines.length) return;
+  const hero = document.getElementById("hero");
+  hero.addEventListener("pointermove", e => {
+    lines.forEach(line => {
+      const r = line.getBoundingClientRect();
+      line.style.setProperty("--hx", `${e.clientX - r.left}px`);
+      line.style.setProperty("--hy", `${e.clientY - r.top}px`);
+    });
+  }, { passive: true });
+}
+
 /* ── Hardware accordion: single-open panels ── */
 function initHardwareAccordion() {
   const panels = document.querySelectorAll(".neo-hw-panel");
@@ -1009,3 +1024,4 @@ initCardSpotlight();
 initSplitReveal();
 initReveals();
 initNeoHeroReveal();
+initHeadlineSpotlight();
